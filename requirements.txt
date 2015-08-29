@@ -1,6 +1,4 @@
-Flask==0.10.1
-Flask-Auth==0.85
-Flask-SQLAlchemy==2.0
+Django==1.8.4
 ipaddress==1.0.14
 requests==2.7.0
 

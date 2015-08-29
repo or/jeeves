@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Build #{{ object.id }}{% endblock %}
+
+{% block content %}
+<h1>Build #{{ object.id }}</h1>
+status: {{ object.status }}<br/>
+started: {{ object.start_time }}<br/>
+ended: {{ object.end_time }}<br/>
+Log:<br/>
+<pre>
+{{ object.get_log }}
+</pre>
+{% endblock %}
