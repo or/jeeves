@@ -29,7 +29,7 @@ class Build(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     log_file = models.CharField(max_length=2048, null=True, blank=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
-                              default=Status.CREATED)
+                              null=True, blank=True)
 
     def get_log(self):
         return open(self.log_file).read()

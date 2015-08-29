@@ -96,7 +96,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -104,4 +104,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/builds'
 LOG_FILE_TEMPLATE = "{instance}/instance.log"
+BUILD_COMMAND = "/home/thi/dev/jeeves/build.py '--branch {branch} --test {github[pusher][name]}'"
+GITHUB_HOOK_SECRET = "foobar"
