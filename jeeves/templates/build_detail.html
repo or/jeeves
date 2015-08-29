@@ -2,13 +2,33 @@
 {% block title %}Build #{{ object.id }}{% endblock %}
 
 {% block content %}
-<h1>Build #{{ object.id }}</h1>
-status: {{ object.status }}<br/>
-started: {{ object.start_time }}<br/>
-ended: {{ object.end_time }}<br/>
-result: {{ object.result }}<br/>
-Log:<br/>
-<pre>
-{{ object.get_log }}
-</pre>
+<div class="container">
+  <h1>Build #{{ object.id }} ({{ build.status }})</h1>
+  {% if object.result == "success" %}
+  <div role="alert" class="alert alert-success">
+    <strong>Success!</strong> Build finished successfully.
+  </div>
+  {% else %}
+  <div role="alert" class="alert alert-danger">
+    <strong>Failure!</strong> Build failed.
+  </div>
+  {% endif %}
+  <div class="panel panel-default">
+    <div class="panel-heading">Log</div>
+      <div class="panel-body">
+        <pre class="pre-scrollable">
+        {{ object.get_log }}
+        </pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+  {% if build.status == "running" %}
+  setTimeout(function() {
+    window.location.reload();
+  }, 15000);
+  {% endif %}
 {% endblock %}

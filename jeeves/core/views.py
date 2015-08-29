@@ -20,6 +20,15 @@ class BuildListView(ListView):
     model = Build
     template_name = "build_list.html"
 
+    def get_queryset(self):
+        queryset = super(BuildListView, self).get_queryset()
+        return queryset.order_by('-id')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(BuildListView, self).get_context_data(*args, **kwargs)
+        context['last_build'] = self.get_queryset().first()
+        return context
+
 
 class BuildDetailView(DetailView):
     model = Build

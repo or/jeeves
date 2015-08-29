@@ -2,12 +2,51 @@
 {% block title %}Build List{% endblock %}
 
 {% block content %}
-<h1>Builds</h1>
-<ul>
+<div class="container">
+  <h2 class="page-header">Builds</h2>
+
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th class="text-center">#</th>
+        <th class="text-center">status</th>
+        <th>start</th>
+        <th>end</th>
+        <th class="text-center">result</th>
+        <th style="width:40%">instance</th>
+      </tr>
+    </thead>
+    <tbody>
 {% for build in object_list %}
-    <li><a href="{% url 'build-view' pk=build.id %}">#{{ build.id }}</a> - {{ build.start_time }} - {{ build.instance }}</li>
+    <tr>
+      <td class="text-center"><a href="{% url 'build-view' pk=build.id %}">#{{ build.id }}</a></td>
+      <td class="text-center">
+        <span class="label
+        {% if build.status == 'running' %}
+        label-success
+        {% elif build.status == 'finished' %}
+        label-info
+        {% endif %}">
+          {{ build.status }}
+        </span>
+      </td>
+      <td>{{ build.start_time }}</td>
+      <td>{{ build.end_time }}</td>
+      <td class="text-center">
+      {% if build.result == "success" %}
+        <span class="glyphicon glyphicon-ok" style="color:green"></span>
+      {% elif build.result == "failure" %}
+        <span class="glyphicon glyphicon-remove" style="color:red"></span>
+      {% else %}
+      {% endif %}
+      </td>
+      <td>{{ build.instance }}</td>
+    </tr>
 {% empty %}
-    <li>No builds yet.</li>
+    <tr><td>No builds yet.</td></tr>
 {% endfor %}
-</ul>
+    </tbody>
+  </table>
+</div>
 {% endblock %}
