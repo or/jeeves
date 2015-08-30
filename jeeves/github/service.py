@@ -3,7 +3,7 @@ from multiprocessing import Process
 
 from django.conf import settings
 
-from .models import GithubConfig, GithubRepository
+from .models import GithubWebhookMatch, GithubRepository
 
 from jeeves.core.service import start_build
 
@@ -18,7 +18,7 @@ def match_to_projects(payload):
 
     projects = set()
     excludes = set()
-    for config in GithubConfig.objects.filter(repository=repository):
+    for config in GithubWebhookMatch.objects.filter(repository=repository):
         if not re.match(config.branch_match, branch):
             continue
 

@@ -13,7 +13,7 @@ class GithubRepository(models.Model):
         return self.name
 
 
-class GithubConfig(models.Model):
+class GithubWebhookMatch(models.Model):
     repository = models.ForeignKey(
         GithubRepository,
         help_text="the repository on GitHub")
