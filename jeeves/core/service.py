@@ -7,7 +7,8 @@ from io import StringIO
 from django.core.files import File
 from django.utils import timezone
 
-from jeeves.core.models import Build
+from .models import Build
+from .signals import build_start, build_finished
 
 
 def start_build(project, instance, branch=None, metadata=None):
@@ -39,8 +40,7 @@ def start_build(project, instance, branch=None, metadata=None):
     st = os.stat(file_path)
     os.chmod(file_path, st.st_mode | stat.S_IEXEC)
 
-    # copy stdout and stderr to self.log_file
-    # from http://stackoverflow.com/a/651718
+    build_start.send('core', build=build, metadata=metadata)
 
     out = open(build.log_file.path, 'w')
     try:
@@ -59,3 +59,5 @@ def start_build(project, instance, branch=None, metadata=None):
     build.status = Build.Status.FINISHED
     build.end_time = timezone.now()
     build.save()
+
+    build_finished.send('core', build=build, metadata=metadata)
