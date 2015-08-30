@@ -1,6 +1,8 @@
 import re
 from multiprocessing import Process
 
+from django.conf import settings
+
 from .models import GithubConfig, GithubRepository
 
 from jeeves.core.service import start_build
@@ -32,8 +34,10 @@ def handle_push_hook_request(payload):
     branch = payload['ref'][len('refs/heads/'):]
     projects = match_to_projects(payload)
     for project in projects:
-        start_build(project, branch, metadata=payload)
-        continue
+        if getattr(settings, 'SINGLE_THREAD_MODE', False):
+            start_build(project, branch, metadata=payload)
+            continue
+
         p = Process(target=start_build,
                     args=(project, branch),
                     kwargs=dict(metadata=payload))

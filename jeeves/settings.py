@@ -108,7 +108,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 LOGIN_URL = '/login'
-LOGIN_REDIRECT_URL = '/builds'
-LOG_FILE_TEMPLATE = "{instance}/instance.log"
-BUILD_COMMAND = "/home/thi/dev/jeeves/build.py '--branch {branch} --test {metadata[pusher][name]}'"
+LOGIN_REDIRECT_URL = '/'
 GITHUB_HOOK_SECRET = "foobar"
+
+SINGLE_THREAD_MODE = True
