@@ -3,50 +3,69 @@
 
 {% block content %}
 <div class="container">
-  <h2 class="page-header">Builds</h2>
-
-<div class="table-responsive">
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th class="text-center">#</th>
-        <th class="text-center">status</th>
-        <th>start</th>
-        <th>end</th>
-        <th class="text-center">result</th>
-        <th style="width:40%">instance</th>
-      </tr>
-    </thead>
-    <tbody>
-{% for build in object_list %}
-    <tr>
-      <td class="text-center"><a href="{% url 'build-view' project_slug=project.slug build_id=build.build_id %}">#{{ build.id }}</a></td>
-      <td class="text-center">
-        <span class="label
-        {% if build.status == 'running' %}
-        label-warning
-        {% elif build.status == 'finished' %}
-        label-success
-        {% endif %}">
-          {{ build.status }}
-        </span>
-      </td>
-      <td>{{ build.start_time }}</td>
-      <td>{{ build.end_time }}</td>
-      <td class="text-center">
-      {% if build.result == "success" %}
-        <span class="glyphicon glyphicon-ok" style="color:green"></span>
-      {% elif build.result == "failure" %}
-        <span class="glyphicon glyphicon-remove" style="color:red"></span>
-      {% else %}
+  <h2 class="page-header">{{ project.name }}
+      {% if perms.can_edit_project %}
+        <a href="{% url 'admin:core_project_change' project.id %}"
+           role="button" class="pull-right btn btn-default">
+          <span class="glyphicon glyphicon-edit">
+        </a>
       {% endif %}
-      </td>
-      <td>{{ build.instance }}</td>
-    </tr>
-{% empty %}
-    <tr><td>No builds yet.</td></tr>
-{% endfor %}
-    </tbody>
-  </table>
+  </h2>
+
+  <div class="container row">
+    <div class="panel panel-default col-lg-6">
+      <div class="panel-body">
+        {{ project.description }}
+      </div>
+    </div>
+    <div class="col-lg-6">
+    </div>
+  </div>
+
+  <h3>Builds</h3>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th class="text-center">#</th>
+          <th class="text-center">status</th>
+          <th>start</th>
+          <th>end</th>
+          <th class="text-center">result</th>
+          <th style="width:40%">instance</th>
+        </tr>
+      </thead>
+      <tbody>
+  {% for build in object_list %}
+      <tr>
+        <td class="text-center"><a href="{% url 'build-view' project_slug=project.slug build_id=build.build_id %}">#{{ build.id }}</a></td>
+        <td class="text-center">
+          <span class="label
+          {% if build.status == 'running' %}
+          label-warning
+          {% elif build.status == 'finished' %}
+          label-success
+          {% endif %}">
+            {{ build.status }}
+          </span>
+        </td>
+        <td>{{ build.start_time }}</td>
+        <td>{{ build.end_time }}</td>
+        <td class="text-center">
+        {% if build.result == "success" %}
+          <span class="glyphicon glyphicon-ok" style="color:green"></span>
+        {% elif build.result == "failure" %}
+          <span class="glyphicon glyphicon-remove" style="color:red"></span>
+        {% else %}
+        {% endif %}
+        </td>
+        <td>{{ build.instance }}</td>
+      </tr>
+  {% empty %}
+      <tr><td>No builds yet.</td></tr>
+  {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

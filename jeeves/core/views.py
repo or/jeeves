@@ -27,7 +27,6 @@ class BuildListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(BuildListView, self).get_context_data(*args, **kwargs)
-        context['last_build'] = self.get_queryset().first()
         context['project'] = self.project
         return context
 
@@ -56,3 +55,8 @@ class BuildDetailView(DetailView):
             raise Http404(_("No %(verbose_name)s found matching the query") %
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(BuildDetailView, self).get_context_data(*args, **kwargs)
+        context['project'] = self.project
+        return context

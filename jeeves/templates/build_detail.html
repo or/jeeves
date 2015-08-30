@@ -3,16 +3,38 @@
 
 {% block content %}
 <div class="container">
-  <h1>Build #{{ object.id }} ({{ build.status }})</h1>
-  {% if object.result == "success" %}
-  <div role="alert" class="alert alert-success">
-    <strong>Success!</strong> Build finished successfully.
-  </div>
-  {% else %}
-  <div role="alert" class="alert alert-danger">
-    <strong>Failure!</strong> Build failed.
-  </div>
+  <ol class="breadcrumb">
+    <li><a href="{% url 'build-list' project_slug=project.slug %}">{{ project.name }}</a></li>
+    <li class="active">Build #{{ object.build_id }}</li>
+  </ol>
+
+  <h1>Build #{{ object.build_id }} ({{ build.status }})</h1>
+
+  {% if object.result %}
+    {% if object.result == "success" %}
+    <div role="alert" class="alert alert-success">
+      <strong>Success!</strong> Very good, sir.
+    </div>
+    {% else %}
+    <div role="alert" class="alert alert-danger">
+      <strong>Failure!</strong> I'm sorry to hear that, sir.
+    </div>
+    {% endif %}
   {% endif %}
+
+  <div class="row container">
+    <div class="panel panel-default col-sm-6">
+      <div class="panel-body">
+        <p>Started: {{ build.start_time }}</p>
+        {% if build.end_time %}
+        <p>Finished: {{ build.end_time }}</p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-lg-6">
+    </div>
+  </div>
+
   <div class="panel panel-default">
     <div class="panel-heading">Log</div>
       <div class="panel-body">

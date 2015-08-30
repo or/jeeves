@@ -21,19 +21,16 @@
   </head>
   <body role="document">
   <nav class="navbar navbar-inverse navbar-static-top">
-    <div class="navbar-inner">
-      <a href="{% url 'project-list' %}" class="navbar-brand">Jeeves</a>
-      <div class="container">
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="{% active_page request 'project-list' %}">
-              <a href="{% url 'project-list' %}">
-                Projects
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
+    <a href="{% url 'project-list' %}" class="navbar-brand">Jeeves</a>
+    <div class="container">
+      <ul class="nav navbar-nav">
+        <li class="{% active_page request 'project-list' %}">
+          <a href="{% url 'project-list' %}">
+            Projects
+          </a>
+        </li>
+      </ul>
+      <span class="navbar-text navbar-right">Very good, sir.</span>
     </div>
   </nav>
 {% block content %}
