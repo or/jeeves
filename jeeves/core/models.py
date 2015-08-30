@@ -16,6 +16,9 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+    def get_num_running_builds(self):
+        return self.build_set.filter(status=Build.Status.RUNNING).count()
+
 
 class Build(models.Model):
     class Status:

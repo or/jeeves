@@ -24,7 +24,14 @@
     <tbody>
 {% for project in object_list %}
     <tr>
-      <td class="h4" style="vertical-align:middle"><a href="{% url 'build-list' project_slug=project.slug %}">{{ project.name }}</a></td>
+      <td class="h4" style="vertical-align:middle">
+        <a href="{% url 'build-list' project_slug=project.slug %}">{{ project.name }}</a>
+        {% with num_running_builds=project.get_num_running_builds %}
+          {% if num_running_builds %}
+          <span class="badge">{{ num_running_builds }}</span>
+          {% endif %}
+        {% endwith %}
+      </td>
       <td style="vertical-align:middle">{{ project.description }}</td>
       <td class="text-right">
         {% if perms.can_edit_project %}
