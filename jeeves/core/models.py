@@ -1,8 +1,9 @@
+from datetime import timedelta
+from math import exp
+
 from django.core.files.storage import FileSystemStorage
 from django.db import models
-
-
-fs = FileSystemStorage(location='/media/photos')
+from django.utils import timezone
 
 
 class Project(models.Model):
@@ -65,3 +66,55 @@ class Build(models.Model):
                 Build.objects.filter(project=self.project).count() + 1
 
         super(Build, self).save(*args, **kwargs)
+
+    def get_duration(self):
+        if not self.start_time or not self.end_time:
+            return None
+
+        elapsed_time = self.end_time - self.start_time
+        num_secs = elapsed_time.days * 86400 + elapsed_time.seconds
+        mins = int(num_secs / 60)
+        secs = int(num_secs - mins * 60)
+        chunks = []
+        if mins > 0:
+            chunks.append('{} mins'.format(mins))
+        if secs > 0:
+            chunks.append('{} secs'.format(secs))
+
+        total = ', '.join(chunks)
+        if not total:
+            total = '0 secs'
+
+        return total
+
+    def get_progress(self):
+        if self.status == Build.Status.FINISHED:
+            return {'percentage': 100}
+
+        last_build = \
+            Build.objects.filter(
+                project=self.project,
+                status=Build.Status.FINISHED,
+                result=Build.Result.SUCCESS,
+                start_time__isnull=False,
+                end_time__isnull=False,
+                build_id__lt=self.build_id
+            ).order_by('-build_id').first()
+
+        diff = timezone.now() - self.start_time
+        if not last_build:
+            return {
+                'percentage':
+                100.0 * (1.0 - exp(-diff / timedelta(seconds=300))),
+            }
+
+        previous_duration = last_build.end_time - last_build.start_time
+
+        if diff > previous_duration:
+            over = diff - previous_duration
+            return {
+                'percentage': 100.0 * previous_duration / (1.1 * diff),
+                'over': 100.0 * over / (1.1 * diff),
+            }
+
+        return {'percentage': 100.0 * diff / previous_duration}

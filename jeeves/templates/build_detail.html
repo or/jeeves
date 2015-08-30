@@ -25,10 +25,19 @@
   <div class="row container">
     <div class="panel panel-default col-sm-6">
       <div class="panel-body">
-        <p>Started: {{ build.start_time }}</p>
-        {% if build.end_time %}
-        <p>Finished: {{ build.end_time }}</p>
-        {% endif %}
+        <p><strong>Started:</strong> {{ build.start_time }}</p>
+        {% if build.status == 'running' %}
+            {% with build.get_progress as progress %}
+            <div class="progress" style="width:75%">
+              <div class="progress-bar progress-bar-success" style="width:{{ progress.percentage }}%"></div>
+              {% if progress.over %}
+              <div class="progress-bar progress-bar-danger" style="width:{{ progress.over }}%"></div>
+              {% endif %}
+            </div>
+            {% endwith %}
+          {% else %}
+            <p><strong>Duration:</strong> {{ build.get_duration|default:'' }}</p>
+          {% endif %}
       </div>
     </div>
     <div class="col-lg-6">
@@ -49,6 +58,6 @@
   {% if build.status == "running" %}
   setTimeout(function() {
     window.location.reload();
-  }, 15000);
+  }, 5000);
   {% endif %}
 {% endblock %}
