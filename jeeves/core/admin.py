@@ -1,5 +1,11 @@
 from django.contrib import admin
 
-from jeeves.core.models import Build
+from jeeves.core.models import Build, Project
 
-admin.register(Build)
+
+class ProjectAdmin(admin.ModelAdmin):
+    prepopulated_fields = {"slug": ("name",)}
+
+
+admin.site.register(Project, ProjectAdmin)
+admin.site.register(Build)

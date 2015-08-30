@@ -22,16 +22,14 @@
   <body role="document">
   <nav class="navbar navbar-inverse navbar-static-top">
     <div class="navbar-inner">
-      <a href="{% url 'index' %}" class="navbar-brand">Jeeves</a>
+      <a href="{% url 'project-list' %}" class="navbar-brand">Jeeves</a>
       <div class="container">
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="{% active_page request 'index' %}"><a href="{% url 'index' %}">Home</a></li>
-            <li class="{% active_page request 'build-list' %}"><a href="{% url 'build-list' %}">
-              Builds
-              {% if num_running_builds %}
-              <span class="badge">{{ num_running_builds }}</span>
-              {% endif %}</a>
+            <li class="{% active_page request 'project-list' %}">
+              <a href="{% url 'project-list' %}">
+                Projects
+              </a>
             </li>
           </ul>
         </div>

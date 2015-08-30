@@ -20,7 +20,7 @@
     <tbody>
 {% for build in object_list %}
     <tr>
-      <td class="text-center"><a href="{% url 'build-view' pk=build.id %}">#{{ build.id }}</a></td>
+      <td class="text-center"><a href="{% url 'build-view' project_slug=project.slug build_id=build.build_id %}">#{{ build.id }}</a></td>
       <td class="text-center">
         <span class="label
         {% if build.status == 'running' %}

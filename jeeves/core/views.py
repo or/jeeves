@@ -4,16 +4,23 @@ from hashlib import sha1
 from multiprocessing import Process
 
 from django.conf import settings
-from django.http.response import HttpResponse
+from django.http.response import Http404, HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, ListView, TemplateView, View
+from django.views.generic import DetailView, ListView, View
 
-from jeeves.core.models import Build
-from jeeves.core.service import handle_push_hook_request, start_build
+from jeeves.core.models import Build, Project
+from jeeves.core.service import handle_push_hook_request
 
 
-class IndexView(TemplateView):
-    template_name = "index.html"
+class ProjectListView(ListView):
+    model = Project
+    template_name = "project_list.html"
+
+    def get_queryset(self):
+        queryset = super(ProjectListView, self).get_queryset()
+        return queryset.order_by('name')
 
 
 class BuildListView(ListView):
@@ -21,18 +28,42 @@ class BuildListView(ListView):
     template_name = "build_list.html"
 
     def get_queryset(self):
+        self.project = \
+            get_object_or_404(Project, slug=self.kwargs['project_slug'])
         queryset = super(BuildListView, self).get_queryset()
-        return queryset.order_by('-id')
+        return queryset.filter(project=self.project).order_by('-build_id')
 
     def get_context_data(self, *args, **kwargs):
         context = super(BuildListView, self).get_context_data(*args, **kwargs)
         context['last_build'] = self.get_queryset().first()
+        context['project'] = self.project
         return context
 
 
 class BuildDetailView(DetailView):
     model = Build
     template_name = "build_detail.html"
+
+    def get_queryset(self):
+        self.project = \
+            get_object_or_404(Project, slug=self.kwargs['project_slug'])
+        queryset = Build.objects.all()
+        return queryset.filter(project=self.project,
+                               build_id=self.kwargs['build_id'])
+
+    def get_object(self, queryset=None):
+        # Use a custom queryset if provided; this is required for subclasses
+        # like DateDetailView
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        try:
+            # Get the single item from the filtered queryset
+            obj = queryset.get()
+        except queryset.model.DoesNotExist:
+            raise Http404(_("No %(verbose_name)s found matching the query") %
+                          {'verbose_name': queryset.model._meta.verbose_name})
+        return obj
 
 
 class GithubWebhookView(View):

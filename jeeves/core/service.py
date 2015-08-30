@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.conf import settings
 
-from jeeves.core.models import Build
+from jeeves.core.models import Build, Project
 
 
 def get_log_file(instance, build_id):
@@ -12,9 +12,10 @@ def get_log_file(instance, build_id):
         instance=instance, build_id=build_id)
 
 
-def start_build(instance, branch=None, github_payload=None):
+def start_build(project, instance, branch=None, github_payload=None):
     branch = branch or instance
-    build = Build.objects.create(instance=instance, branch=branch)
+    build = Build.objects.create(project=project, instance=instance,
+                                 branch=branch)
     build.log_file = get_log_file(instance, build.id)
 
     build.start_time = datetime.now()
@@ -46,4 +47,8 @@ def start_build(instance, branch=None, github_payload=None):
 
 def handle_push_hook_request(payload):
     branch = payload['ref'][len('refs/heads/'):]
-    start_build(branch, github_payload=payload)
+    project = Project.objects.get_for_github_event(payload)
+    if not project:
+        return
+
+    start_build(project, branch, github_payload=payload)
