@@ -1,4 +1,5 @@
 Django==1.8.4
+django-admin-bootstrapped==2.5.4
 ipaddress==1.0.14
 requests==2.7.0
 
