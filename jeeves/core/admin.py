@@ -1,10 +1,16 @@
 from django.contrib import admin
 
-from jeeves.core.models import Build, Project
+from .models import Build, Project
+
+from jeeves.github.admin import GithubConfigInline
 
 
 class ProjectAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
+
+    inlines = [
+        GithubConfigInline
+    ]
 
 
 admin.site.register(Project, ProjectAdmin)

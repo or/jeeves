@@ -1,15 +1,13 @@
 from django.db import models
 
-from jeeves.core.managers import ProjectManager
-
 
 class Project(models.Model):
-    name = models.CharField(max_length=64)
-    slug = models.SlugField()
-    description = models.CharField(max_length=1024)
-    command = models.TextField()
-
-    objects = ProjectManager()
+    name = models.CharField(
+        max_length=64, help_text="the name of the project")
+    slug = models.SlugField(help_text="the slug to identify the project")
+    description = models.CharField(
+        max_length=1024, help_text="a description of the project")
+    command = models.TextField(help_text="the script to run for the build")
 
     def __str__(self):
         return self.name

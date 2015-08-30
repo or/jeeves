@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from jeeves.core.service import handle_push_hook_request
+from .service import handle_push_hook_request
 
 
 class GithubWebhookView(View):

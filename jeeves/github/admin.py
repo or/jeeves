@@ -1,3 +1,18 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import GithubConfig, GithubRepository
+
+admin.site.register(GithubConfig)
+admin.site.register(GithubRepository)
+
+
+class GithubRepositoryInline(admin.TabularInline):
+    model = GithubRepository
+
+
+class GithubConfigInline(admin.TabularInline):
+    model = GithubConfig
+
+    inlines = [
+        GithubRepositoryInline
+    ]
