@@ -1,4 +1,5 @@
-import fnmatch
+import re
+from multiprocessing import Process
 
 from .models import GithubConfig, GithubRepository
 
@@ -15,7 +16,7 @@ def match_to_projects(payload):
 
     projects = set()
     for config in GithubConfig.objects.filter(repository=repository):
-        if fnmatch.fnmatch(branch, config.branch_match):
+        if re.match(config.branch_match, branch):
             projects.add(config.project)
 
     return list(projects)
@@ -26,3 +27,8 @@ def handle_push_hook_request(payload):
     projects = match_to_projects(payload)
     for project in projects:
         start_build(project, branch, metadata=payload)
+        continue
+        p = Process(target=start_build,
+                    args=(project, branch),
+                    kwargs=dict(metadata=payload))
+        p.start()

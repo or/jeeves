@@ -1,4 +1,8 @@
+from django.core.files.storage import FileSystemStorage
 from django.db import models
+
+
+fs = FileSystemStorage(location='/media/photos')
 
 
 class Project(models.Model):
@@ -7,7 +11,7 @@ class Project(models.Model):
     slug = models.SlugField(help_text="the slug to identify the project")
     description = models.CharField(
         max_length=1024, help_text="a description of the project")
-    command = models.TextField(help_text="the script to run for the build")
+    script = models.TextField(help_text="the script to run for the build")
 
     def __str__(self):
         return self.name
@@ -41,7 +45,8 @@ class Build(models.Model):
     branch = models.CharField(max_length=1024, null=True, blank=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
-    log_file = models.CharField(max_length=2048, null=True, blank=True)
+    log_file = models.FileField(
+        storage=FileSystemStorage(location="logs"), null=True, blank=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
                               null=True, blank=True)
 
@@ -49,7 +54,7 @@ class Build(models.Model):
         unique_together = ('project', 'build_id')
 
     def get_log(self):
-        return open(self.log_file).read()
+        return self.log_file.read()
 
     def save(self, *args, **kwargs):
         if not self.id and not self.build_id:

@@ -1,11 +1,9 @@
 import hmac
 import json
 from hashlib import sha1
-from multiprocessing import Process
 
 from django.conf import settings
 from django.http.response import HttpResponse
-from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
@@ -43,7 +41,6 @@ class GithubWebhookView(View):
                 response.status_code = 403
                 return response
 
-        p = Process(target=handle_push_hook_request, args=(payload,))
-        p.start()
+        handle_push_hook_request(payload)
 
         return HttpResponse("OK")

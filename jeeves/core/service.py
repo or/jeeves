@@ -1,37 +1,53 @@
-import shlex
+import os
+import stat
 import subprocess
-from datetime import datetime
+import tempfile
+from io import StringIO
 
-from django.conf import settings
+from django.core.files import File
+from django.utils import timezone
 
 from jeeves.core.models import Build
-
-
-def get_log_file(instance, build_id):
-    return settings.LOG_FILE_TEMPLATE.format(
-        instance=instance, build_id=build_id)
 
 
 def start_build(project, instance, branch=None, metadata=None):
     branch = branch or instance
     build = Build.objects.create(project=project, instance=instance,
                                  branch=branch)
-    build.log_file = get_log_file(instance, build.id)
+    build.log_file.save('build-{:05d}-{:05d}.log'.format(project.id,
+                                                         build.build_id),
+                        File(StringIO()))
 
-    build.start_time = datetime.now()
+    build.start_time = timezone.now()
     build.status = Build.Status.RUNNING
     build.save()
 
-    command_context = dict(
+    script_context = dict(
         instance=instance,
         branch=branch,
         metadata=metadata,
         build_id=build.id,
     )
-    command = settings.BUILD_COMMAND.format(**command_context)
-    print(command)
+
+    (fd, file_path) = tempfile.mkstemp(suffix='.sh', prefix='tmp')
+    script = project.script
+    script = script.format(**script_context)
+    os.write(fd, b"#!/bin/bash -e\n")
+    os.write(fd, script.replace('\r', '\n').encode())
+    os.close(fd)
+
+    st = os.stat(file_path)
+    os.chmod(file_path, st.st_mode | stat.S_IEXEC)
+
+    # copy stdout and stderr to self.log_file
+    # from http://stackoverflow.com/a/651718
+
+    out = open(build.log_file.path, 'w')
     try:
-        result = subprocess.check_call(shlex.split(command))
+        result = subprocess.check_call(
+            [file_path],
+            stdout=out,
+            stderr=out)
     except subprocess.CalledProcessError as e:
         result = e.returncode
 
@@ -41,5 +57,5 @@ def start_build(project, instance, branch=None, metadata=None):
         build.result = Build.Result.FAILURE
 
     build.status = Build.Status.FINISHED
-    build.end_time = datetime.now()
+    build.end_time = timezone.now()
     build.save()

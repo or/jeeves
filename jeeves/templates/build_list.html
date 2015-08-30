@@ -24,9 +24,9 @@
       <td class="text-center">
         <span class="label
         {% if build.status == 'running' %}
-        label-success
+        label-warning
         {% elif build.status == 'finished' %}
-        label-info
+        label-success
         {% endif %}">
           {{ build.status }}
         </span>
