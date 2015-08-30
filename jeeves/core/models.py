@@ -1,7 +1,9 @@
 from datetime import timedelta
 from math import exp
 
+from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
@@ -118,3 +120,10 @@ class Build(models.Model):
             }
 
         return {'percentage': 100.0 * diff / previous_duration}
+
+    def get_external_url(self):
+        return settings.BASE_URL + \
+            reverse(
+                'build-view',
+                kwargs=dict(project_slug=self.project.slug,
+                            build_id=self.build_id))
