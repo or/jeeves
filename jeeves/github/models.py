@@ -25,9 +25,14 @@ class GithubConfig(models.Model):
     project = models.ForeignKey(
         Project, help_text="the Jeeves project")
 
+    exclude = models.BooleanField()
+
     class Meta:
         unique_together = ('project', 'repository', 'branch_match')
 
     def __str__(self):
-        return "{}:{}@{}".format(self.project.slug, self.repository,
-                                 self.branch_match)
+        return "{}{}:{}@{}".format(
+            '!' if self.exclude else '',
+            self.project.slug,
+            self.repository,
+            self.branch_match)

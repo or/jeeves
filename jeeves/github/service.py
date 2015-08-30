@@ -15,11 +15,17 @@ def match_to_projects(payload):
         return []
 
     projects = set()
+    excludes = set()
     for config in GithubConfig.objects.filter(repository=repository):
-        if re.match(config.branch_match, branch):
+        if not re.match(config.branch_match, branch):
+            continue
+
+        if config.exclude:
+            excludes.add(config.project)
+        else:
             projects.add(config.project)
 
-    return list(projects)
+    return list(projects - excludes)
 
 
 def handle_push_hook_request(payload):
