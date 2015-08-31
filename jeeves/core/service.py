@@ -42,12 +42,19 @@ def start_build(project, instance, branch=None, metadata=None):
 
     build_start.send('core', build=build, metadata=metadata)
 
+    env_removals = ['DJANGO_SETTINGS_MODULE', 'VIRTUAL_ENV', 'CD_VIRTUAL_ENV']
+    env = dict(os.environ)
+    for env_entry in env_removals:
+        if env_entry in env:
+            env.pop(env_entry)
+
     out = open(build.log_file.path, 'w')
     try:
         result = subprocess.check_call(
             [file_path],
             stdout=out,
-            stderr=out)
+            stderr=out,
+            env=env)
     except subprocess.CalledProcessError as e:
         result = e.returncode
 
