@@ -28,6 +28,7 @@ def start_build(project, instance, branch=None, metadata=None):
         branch=branch,
         metadata=metadata,
         build_id=build.id,
+        build_url=build.get_external_url()
     )
 
     (fd, file_path) = tempfile.mkstemp(suffix='.sh', prefix='tmp')
