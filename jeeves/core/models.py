@@ -8,6 +8,10 @@ from django.db import models
 from django.utils import timezone
 
 
+def get_total_number_of_seconds(delta):
+    return 86400 * delta.days + delta.seconds
+
+
 class Project(models.Model):
     name = models.CharField(
         max_length=64, help_text="the name of the project")
@@ -74,7 +78,7 @@ class Build(models.Model):
             return None
 
         elapsed_time = self.end_time - self.start_time
-        num_secs = elapsed_time.days * 86400 + elapsed_time.seconds
+        num_secs = get_total_number_of_seconds(elapsed_time)
         mins = int(num_secs / 60)
         secs = int(num_secs - mins * 60)
         chunks = []
@@ -103,20 +107,21 @@ class Build(models.Model):
                 build_id__lt=self.build_id
             ).order_by('-build_id').first()
 
-        diff = timezone.now() - self.start_time
+        diff = get_total_number_of_seconds(timezone.now() - self.start_time)
         if not last_build:
             return {
                 'percentage':
-                100.0 * (1.0 - exp(-diff / timedelta(seconds=300))),
+                100.0 * (1.0 - exp(-diff / 300.0)),
             }
 
-        previous_duration = last_build.end_time - last_build.start_time
+        previous_duration = get_total_number_of_seconds(
+            last_build.end_time - last_build.start_time)
 
         if diff > previous_duration:
             over = diff - previous_duration
             return {
-                'percentage': 100.0 * previous_duration / (1.1 * diff),
-                'over': 100.0 * over / (1.1 * diff),
+                'percentage': 100.0 * previous_duration / diff,
+                'over': 100.0 * over / diff,
             }
 
         return {'percentage': 100.0 * diff / previous_duration}
