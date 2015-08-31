@@ -1,4 +1,3 @@
-from datetime import timedelta
 from math import exp
 
 from django.conf import settings

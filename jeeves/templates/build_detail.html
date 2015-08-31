@@ -45,7 +45,13 @@
   </div>
 
   <div class="panel panel-default">
-    <div class="panel-heading">Log</div>
+    <div class="panel-heading clearfix">
+      <h4 class="pull-left">Log</h4>
+      <a href="{% url 'build-log' project_slug=project.slug build_id=build.build_id %}"
+         role="button" class="pull-right btn btn-default" target="_blank">
+        <span class="glyphicon glyphicon-new-window">
+      </a>
+    </div>
       <div class="panel-body">
         <pre class="pre-scrollable">{{ object.get_log }}</pre>
       </div>

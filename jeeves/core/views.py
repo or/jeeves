@@ -1,4 +1,4 @@
-from django.http.response import Http404
+from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView
@@ -60,3 +60,18 @@ class BuildDetailView(DetailView):
         context = super(BuildDetailView, self).get_context_data(*args, **kwargs)
         context['project'] = self.project
         return context
+
+
+class BuildLogView(BuildDetailView):
+    def get(self, request, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+        build = self.get_object()
+        response = HttpResponse(content_type="text/plain")
+        build.log_file.open()
+        response.write(build.log_file.read())
+        return response
+
+    def post(self, request, *args, **kwargs):
+        return HttpResponse(status_code=403)

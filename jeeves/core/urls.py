@@ -15,4 +15,8 @@ urlpatterns = [
     url('^(?P<project_slug>[^/]+)/(?P<build_id>\d+)/?$',
         login_required(views.BuildDetailView.as_view()),
         name="build-view"),
+
+    url('^(?P<project_slug>[^/]+)/(?P<build_id>\d+)/log/?$',
+        login_required(views.BuildLogView.as_view()),
+        name="build-log"),
 ]
