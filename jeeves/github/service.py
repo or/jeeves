@@ -1,5 +1,4 @@
 import re
-from multiprocessing import Process
 
 from github import Github
 
@@ -8,7 +7,7 @@ from django.conf import settings
 from .models import GithubWebhookMatch, GithubRepository
 
 from jeeves.core.models import Build
-from jeeves.core.service import start_build
+from jeeves.core.service import schedule_build
 from jeeves.core.signals import build_finished
 
 
@@ -38,17 +37,11 @@ def handle_push_hook_request(payload):
     branch = payload['ref'][len('refs/heads/'):]
     projects = match_to_projects(payload)
     for project in projects:
-        if getattr(settings, 'SINGLE_THREAD_MODE', False):
-            start_build(project, branch, metadata=payload)
-            continue
-
-        p = Process(target=start_build,
-                    args=(project, branch),
-                    kwargs=dict(metadata=payload))
-        p.start()
+        schedule_build(project, branch, metadata=payload)
 
 
-def build_finished_callback(sender, build, metadata, *args, **kwargs):
+def build_finished_callback(sender, build, *args, **kwargs):
+    metadata = build.get_metadata()
     token = getattr(settings, 'GITHUB_ACCESS_TOKEN', None)
     if not token:
         return

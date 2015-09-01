@@ -1,3 +1,4 @@
+import json
 from math import exp
 
 from django.conf import settings
@@ -28,7 +29,7 @@ class Project(models.Model):
 
 class Build(models.Model):
     class Status:
-        CREATED = "created"
+        SCHEDULED = "scheduled"
         RUNNING = "running"
         FINISHED = "finished"
 
@@ -37,7 +38,7 @@ class Build(models.Model):
         FAILURE = "failure"
 
     STATUS_CHOICES = [
-        (Status.CREATED, Status.CREATED),
+        (Status.SCHEDULED, Status.SCHEDULED),
         (Status.RUNNING, Status.RUNNING),
         (Status.FINISHED, Status.FINISHED),
     ]
@@ -49,11 +50,12 @@ class Build(models.Model):
     project = models.ForeignKey(Project)
     build_id = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES,
-                              default=Status.CREATED)
-    instance = models.CharField(max_length=1024)
-    branch = models.CharField(max_length=1024, null=True, blank=True)
+                              default=Status.SCHEDULED)
+    creation_time = models.DateTimeField()
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
+    branch = models.CharField(max_length=1024, null=True, blank=True)
+    metadata = models.TextField(null=True, blank=True)
     log_file = models.FileField(
         storage=FileSystemStorage(location="logs"), null=True, blank=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
@@ -131,3 +133,9 @@ class Build(models.Model):
                 'build-view',
                 kwargs=dict(project_slug=self.project.slug,
                             build_id=self.build_id))
+
+    def set_metadata(self, metadata):
+        self.metadata = json.dumps(metadata)
+
+    def get_metadata(self):
+        return json.loads(self.metadata)

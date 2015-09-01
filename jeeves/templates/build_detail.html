@@ -25,7 +25,10 @@
   <div class="row container">
     <div class="panel panel-default col-sm-6">
       <div class="panel-body">
-        <p><strong>Started:</strong> {{ build.start_time }}</p>
+        <p><strong>Created:</strong> {{ build.creation_time }}</p>
+        {% if build.start_time %}
+          <p><strong>Started:</strong> {{ build.start_time }}</p>
+        {% endif %}
         {% if build.status == 'running' %}
             {% with build.get_progress as progress %}
             <div class="progress" style="width:75%">

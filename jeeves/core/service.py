@@ -4,6 +4,8 @@ import subprocess
 import tempfile
 from io import StringIO
 
+from celery import shared_task
+
 from django.core.files import File
 from django.utils import timezone
 
@@ -11,28 +13,35 @@ from .models import Build
 from .signals import build_start, build_finished
 
 
-def start_build(project, instance, branch=None, metadata=None):
-    branch = branch or instance
-    build = Build.objects.create(project=project, instance=instance,
-                                 branch=branch)
-    build.log_file.save('build-{:05d}-{:05d}.log'.format(project.id,
+def schedule_build(project, branch=None, metadata=None):
+    build = Build.objects.create(project=project, branch=branch,
+                                 creation_time=timezone.now())
+    build.set_metadata(metadata)
+    build.status = Build.Status.SCHEDULED
+    build.save()
+
+    start_build.delay(build.id)
+
+
+@shared_task
+def start_build(build_pk):
+    build = Build.objects.get(pk=build_pk)
+    build.log_file.save('build-{:05d}-{:05d}.log'.format(build.project.id,
                                                          build.build_id),
                         File(StringIO()))
-
-    build.start_time = timezone.now()
     build.status = Build.Status.RUNNING
+    build.start_time = timezone.now()
     build.save()
 
     script_context = dict(
-        instance=instance,
-        branch=branch,
-        metadata=metadata,
+        branch=build.branch,
+        metadata=build.get_metadata(),
         build_id=build.id,
         build_url=build.get_external_url()
     )
 
     (fd, file_path) = tempfile.mkstemp(suffix='.sh', prefix='tmp')
-    script = project.script
+    script = build.project.script
     script = script.format(**script_context)
     os.write(fd, b"#!/bin/bash -e\n")
     os.write(fd, script.replace('\r', '\n').encode())
@@ -41,7 +50,7 @@ def start_build(project, instance, branch=None, metadata=None):
     st = os.stat(file_path)
     os.chmod(file_path, st.st_mode | stat.S_IEXEC)
 
-    build_start.send('core', build=build, metadata=metadata)
+    build_start.send('core', build=build)
 
     env_removals = ['DJANGO_SETTINGS_MODULE', 'VIRTUAL_ENV', 'CD_VIRTUAL_ENV']
     env = dict(os.environ)
@@ -68,4 +77,4 @@ def start_build(project, instance, branch=None, metadata=None):
     build.end_time = timezone.now()
     build.save()
 
-    build_finished.send('core', build=build, metadata=metadata)
+    build_finished.send('core', build=build)
