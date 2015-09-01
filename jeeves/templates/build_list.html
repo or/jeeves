@@ -2,7 +2,7 @@
 {% block title %}Jeeves - {{ project.name }} - Builds{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid" style="margin:0.2em">
   <h2 class="page-header">{{ project.name }}
       {% if perms.can_edit_project %}
         <a href="{% url 'admin:core_project_change' project.id %}"
@@ -12,7 +12,7 @@
       {% endif %}
   </h2>
 
-  <div class="container row">
+  <div class="row" style="margin:0.2em">
     <div class="panel panel-default col-lg-6">
       <div class="panel-body">
         {{ project.description }}

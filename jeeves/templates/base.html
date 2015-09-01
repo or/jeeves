@@ -26,7 +26,7 @@
   <body role="document">
   <nav class="navbar navbar-inverse navbar-static-top">
     <a href="{% url 'project-list' %}" class="navbar-brand">Jeeves</a>
-    <div class="container">
+    <div class="container-fluid">
       <ul class="nav navbar-nav">
         <li class="{% active_page request 'project-list' %}">
           <a href="{% url 'project-list' %}">
@@ -34,7 +34,7 @@
           </a>
         </li>
       </ul>
-      <span class="navbar-text navbar-right">Very good, sir.</span>
+      <span class="navbar-text navbar-right" style="margin-right:1em;">Very good, sir.</span>
     </div>
   </nav>
 {% block content %}
