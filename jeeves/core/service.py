@@ -44,7 +44,7 @@ def start_build(build_pk):
     script = build.project.script
     script = script.format(**script_context)
     os.write(fd, b"#!/bin/bash -e\n")
-    os.write(fd, script.replace('\r', '\n').encode())
+    os.write(fd, script.replace('\r', '\n').encode('utf-8'))
     os.close(fd)
 
     st = os.stat(file_path)

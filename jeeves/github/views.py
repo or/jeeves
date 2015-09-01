@@ -19,7 +19,7 @@ class GithubWebhookView(View):
         return HttpResponse("OK")
 
     def post(self, request, *args, **kwargs):
-        payload = json.loads(request.body.decode())
+        payload = json.loads(request.body.decode('utf-8'))
 
         if request.META.get('HTTP_X_GITHUB_EVENT') == "ping":
             return HttpResponse('Hi!')
@@ -33,7 +33,7 @@ class GithubWebhookView(View):
             signature = request.META.get('HTTP_X_HUB_SIGNATURE').split('=')[1]
             secret = settings.GITHUB_HOOK_SECRET
             if isinstance(secret, str):
-                secret = secret.encode()
+                secret = secret.encode('utf-8')
 
             mac = hmac.new(secret, msg=request.body, digestmod=sha1)
             if not hmac.compare_digest(mac.hexdigest(), signature):
