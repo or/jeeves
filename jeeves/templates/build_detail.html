@@ -8,47 +8,7 @@
     <li class="active">Build #{{ object.build_id }}</li>
   </ol>
 
-  <h1>Build #{{ object.build_id }} ({{ build.status }})</h1>
-
-  {% if object.result %}
-    {% if object.result == "success" %}
-    <div role="alert" class="alert alert-success">
-      <strong>Success!</strong> Very good, sir.
-    </div>
-    {% else %}
-    <div role="alert" class="alert alert-danger">
-      <strong>Failure!</strong> I'm sorry to hear that, sir.
-    </div>
-    {% endif %}
-  {% endif %}
-
-  <div class="row container">
-    <div class="panel panel-default col-sm-6">
-      <div class="panel-body">
-        <p><strong>Created:</strong> {{ build.creation_time }}</p>
-        {% if build.start_time %}
-          <p><strong>Started:</strong> {{ build.start_time }}</p>
-        {% endif %}
-        {% if build.status == 'running' %}
-            {% with build.get_progress as progress %}
-            <div class="progress" style="width:75%">
-              <div class="progress-bar progress-bar-success {% if not progress.over %}active progress-bar-striped{% endif %}"
-                   style="width:{{ progress.percentage }}%">
-                <span>{{ progress.duration }}</span>
-              </div>
-              {% if progress.over %}
-              <div class="progress-bar progress-bar-warning active progress-bar-striped" style="width:{{ progress.over }}%"></div>
-              {% endif %}
-            </div>
-            {% endwith %}
-          {% else %}
-            <p><strong>Duration:</strong> {{ build.get_duration|default:'' }}</p>
-          {% endif %}
-      </div>
-    </div>
-    <div class="col-lg-6">
-    </div>
-  </div>
+  {% include "partials/build_detail_header.html" with build=build %}
 
   <div class="panel panel-default">
     <div class="panel-heading clearfix">
@@ -67,9 +27,16 @@
 {% endblock %}
 
 {% block js %}
-  {% if build.status == "running" %}
-  setTimeout(function() {
-    window.location.reload();
-  }, 5000);
-  {% endif %}
+swampdragon.ready(function() {
+  setInterval(function () {
+    swampdragon.callRouter('get_detail_header', 'build-changes', {id: {{ build.id }}},
+      function(context, data) {
+        console.log(data);
+        if (data.html == null) {
+          return;
+        }
+        $('#build-' + {{ build.id }}).replaceWith(data.html);
+      });
+  }, 1000);
+});
 {% endblock %}

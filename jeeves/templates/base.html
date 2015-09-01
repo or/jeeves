@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load navbar %}
+{% load swampdragon_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -19,6 +20,8 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    {% swampdragon_settings %}
+    <script type="text/javascript" src="{% static 'swampdragon/js/dist/swampdragon.min.js' %}"></script>
   </head>
   <body role="document">
   <nav class="navbar navbar-inverse navbar-static-top">
@@ -40,11 +43,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <!--
     <script>
     {% block js %}
     {% endblock %}
     </script>
-    -->
   </body>
 </html>

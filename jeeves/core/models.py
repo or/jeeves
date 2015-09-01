@@ -72,6 +72,7 @@ class Build(models.Model):
     creation_time = models.DateTimeField()
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
+    modified_time = models.DateTimeField(auto_now=True, db_index=True)
     branch = models.CharField(max_length=1024, null=True, blank=True)
     metadata = models.TextField(null=True, blank=True)
     log_file = models.FileField(
