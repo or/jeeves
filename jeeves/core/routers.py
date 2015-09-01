@@ -56,7 +56,7 @@ def get_changed_build_list_rows():
     global pcb, last_timestamp, previous_build_list_data
 
     if pcb is None:
-        pcb = PeriodicCallback(get_changed_build_list_rows, 1000)
+        pcb = PeriodicCallback(get_changed_build_list_rows, 2000)
         pcb.start()
 
     data = {}
