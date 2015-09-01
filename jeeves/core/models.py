@@ -88,7 +88,8 @@ class Build(models.Model):
     def save(self, *args, **kwargs):
         if not self.id and not self.build_id:
             self.build_id = \
-                Build.objects.filter(project=self.project).count() + 1
+                Build.objects.filter(project=self.project) \
+                .aggregate(last_id=models.Max('build_id'))['last_id'] + 1
 
         super(Build, self).save(*args, **kwargs)
 
