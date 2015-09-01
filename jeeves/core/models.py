@@ -84,7 +84,15 @@ class Build(models.Model):
         unique_together = ('project', 'build_id')
 
     def get_log(self):
-        return self.log_file.read()
+        if not self.log_file:
+            return ''
+
+        self.log_file.open()
+        self.log_file.seek(0)
+        data = self.log_file.read()
+        self.log_file.close()
+
+        return data
 
     def save(self, *args, **kwargs):
         if not self.id and not self.build_id:

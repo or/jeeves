@@ -38,6 +38,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'kombu.transport.django',
+    'swampdragon',
     'jeeves.core',
     'jeeves.github',
 )
@@ -124,3 +126,13 @@ CELERY_ENABLE_UTC = True
 CELERY_IMPORTS = [
     'jeeves.core.service',
 ]
+CELERY_CREATE_DIRS=1
+
+
+SWAMP_DRAGON_CONNECTION = (
+    'swampdragon.connections.sockjs_connection.DjangoSubscriberConnection',
+    '/data',
+)
+SWAMP_DRAGON_HOST = "0.0.0.0"
+SWAMP_DRAGON_PORT = 9999
+DRAGON_URL = 'http://localhost:9999/'

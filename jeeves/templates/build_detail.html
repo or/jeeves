@@ -8,18 +8,26 @@
     <li class="active">Build #{{ object.build_id }}</li>
   </ol>
 
-  {% include "partials/build_detail_header.html" with build=build %}
+  {% include "partials/build_detail_header.html" with build=object %}
 
   <div class="panel panel-default">
     <div class="panel-heading clearfix">
       <h4 class="pull-left">Log</h4>
-      <a href="{% url 'build-log' project_slug=project.slug build_id=build.build_id %}"
-         role="button" class="pull-right btn btn-default" target="_blank">
-        <span class="glyphicon glyphicon-new-window">
-      </a>
+      <div class="pull-right form-inline">
+        <div class="checkbox" style="margin-right: 1em;">
+          <label>
+            <input type="checkbox" id="enable-auto-scrolling" checked="checked"/>
+            Auto scroll
+          </label>
+        </div>
+        <a href="{% url 'build-log' project_slug=project.slug build_id=build.build_id %}"
+           role="button" class="btn btn-default" target="_blank">
+          <span class="glyphicon glyphicon-new-window"></span>
+        </a>
+      </div>
     </div>
       <div class="panel-body">
-        <pre class="pre-scrollable">{{ object.get_log }}</pre>
+        <pre id="log" class="pre-scrollable">{{ object.get_log }}</pre>
       </div>
     </div>
   </div>
@@ -27,15 +35,28 @@
 {% endblock %}
 
 {% block js %}
+var current_log_offset = {{ object.get_log|length }};
+
 swampdragon.ready(function() {
   setInterval(function () {
-    swampdragon.callRouter('get_detail_header', 'build-changes', {id: {{ build.id }}},
+    swampdragon.callRouter('get_detail_header', 'build-changes',
+      {id: {{ build.id }}, log_offset: current_log_offset},
       function(context, data) {
         console.log(data);
-        if (data.html == null) {
-          return;
+        if (data.html != null) {
+          $('#build-' + {{ build.id }}).replaceWith(data.html);
         }
-        $('#build-' + {{ build.id }}).replaceWith(data.html);
+        if (data.log_data != null) {
+          var log = $('#log');
+          log.append(data.log_data);
+          current_log_offset = data.log_offset;
+
+          if ($('#enable-auto-scrolling').prop('checked')) {
+            log.animate({
+              scrollTop: log.prop('scrollHeight')
+            }, 500);
+          }
+        }
       });
   }, 1000);
 });

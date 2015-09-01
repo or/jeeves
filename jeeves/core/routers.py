@@ -30,13 +30,23 @@ class BuildChangesRouter(route_handler.BaseRouter):
         build = Build.objects.get(pk=build_pk)
         template = get_template("partials/build_detail_header.html")
         html = template.render({'build': build})
-        data = {'html': html}
-        if header_cache.get(build_pk) == data:
-            self.send({})
-            return
 
-        header_cache[build_pk] = data
-        self.send(data)
+        message = {}
+        if header_cache.get(build_pk) != html:
+            message['html'] = html
+            header_cache[build_pk] = html
+
+        log_offset = kwargs['log_offset']
+        if build.log_file:
+            build.log_file.open()
+            build.log_file.seek(log_offset)
+            new_log_data = build.log_file.read().decode('utf-8')
+            new_log_offset = log_offset + len(new_log_data)
+            if new_log_data:
+                message['log_data'] = new_log_data
+                message['log_offset'] = new_log_offset
+
+        self.send(message)
 
 
 route_handler.register(BuildChangesRouter)

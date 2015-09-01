@@ -1,4 +1,4 @@
-{% with build.get_progress as progress %}
+{% with progress=build.get_progress %}
 <div class="progress" style="width:90%">
   <div class="progress-bar progress-bar-success {% if not progress.over %}active progress-bar-striped{% endif %}"
        style="width:{{ progress.percentage }}%">
