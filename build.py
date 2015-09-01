@@ -12,6 +12,7 @@ time.sleep(3)
 
 for i in range(150):
     print("line {}".format(i))
+    sys.stdout.flush()
     time.sleep(0.1)
 
 print("all done!")
