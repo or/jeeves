@@ -22,6 +22,8 @@ def schedule_build(project, branch=None, metadata=None):
 
     start_build.delay(build.id)
 
+    return build
+
 
 @shared_task
 def start_build(build_pk):

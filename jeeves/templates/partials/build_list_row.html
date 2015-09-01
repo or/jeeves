@@ -26,4 +26,11 @@
     {% endif %}
   </td>
   <td>{{ build.branch }}</td>
+  <td style="width:5%">
+    <a href="{% url 'build-reschedule' project_slug=build.project.slug build_id=build.build_id %}"
+       role="button" class="pull-right btn btn-default"
+       data-toggle="tooltip" title="Schedule a build based on this one">
+      <span class="glyphicon glyphicon-retweet"></span>
+    </a>
+  </td>
 </tr>

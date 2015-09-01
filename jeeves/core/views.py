@@ -1,9 +1,12 @@
-from django.http.response import Http404, HttpResponse
+from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.http.response import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView
 
 from jeeves.core.models import Build, Project
+from jeeves.core.service import schedule_build
 
 
 class ProjectListView(ListView):
@@ -60,6 +63,28 @@ class BuildDetailView(DetailView):
         context = super(BuildDetailView, self).get_context_data(*args, **kwargs)
         context['project'] = self.project
         return context
+
+
+class BuildRescheduleView(BuildDetailView):
+    def get(self, request, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+        build = self.get_object()
+        new_build = schedule_build(
+            build.project, build.branch, metadata=build.get_metadata())
+
+        messages.add_message(
+            request, messages.SUCCESS,
+            'Scheduled build #{} based on build #{}.'.format(
+                new_build.build_id, build.build_id))
+
+        return HttpResponseRedirect(
+            reverse('build-list',
+                    kwargs=dict(project_slug=build.project.slug)))
+
+    def post(self, request, *args, **kwargs):
+        return HttpResponse(status_code=403)
 
 
 class BuildLogView(BuildDetailView):

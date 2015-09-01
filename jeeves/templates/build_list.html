@@ -7,7 +7,7 @@
       {% if perms.can_edit_project %}
         <a href="{% url 'admin:core_project_change' project.id %}"
            role="button" class="pull-right btn btn-default">
-          <span class="glyphicon glyphicon-edit">
+          <span class="glyphicon glyphicon-edit"></span>
         </a>
       {% endif %}
   </h2>
@@ -23,11 +23,17 @@
   </div>
 
   <h3>Builds</h3>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
   <div class="table-responsive">
     <table class="table table-striped">
       <tbody>
       {% for build in object_list %}
-        {% ifchanged %}<tr><td colspan="5" class="h5"><strong>{{ build.creation_time|date:"DATE_FORMAT" }}</strong></td></tr>{% endifchanged %}
+        {% ifchanged %}<tr><td colspan="6" class="h5"><strong>{{ build.creation_time|date:"DATE_FORMAT" }}</strong></td></tr>{% endifchanged %}
         {% include "partials/build_list_row.html" with build=build %}
       {% empty %}
         <tr><td>No builds yet.</td></tr>
