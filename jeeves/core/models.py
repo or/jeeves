@@ -12,6 +12,24 @@ def get_total_number_of_seconds(delta):
     return 86400 * delta.days + delta.seconds
 
 
+def get_elapsed_time(from_time, to_time):
+    elapsed_time = to_time - from_time
+    num_secs = get_total_number_of_seconds(elapsed_time)
+    mins = int(num_secs / 60)
+    secs = int(num_secs - mins * 60)
+    chunks = []
+    if mins > 0:
+        chunks.append('{} min{}'.format(mins, 's' if mins != 1 else ''))
+    if secs > 0:
+        chunks.append('{} sec{}'.format(secs, 's' if secs != 1 else ''))
+
+    total = ', '.join(chunks)
+    if not total:
+        total = '0 secs'
+
+    return total
+
+
 class Project(models.Model):
     name = models.CharField(
         max_length=64, help_text="the name of the project")
@@ -78,21 +96,7 @@ class Build(models.Model):
         if not self.start_time or not self.end_time:
             return None
 
-        elapsed_time = self.end_time - self.start_time
-        num_secs = get_total_number_of_seconds(elapsed_time)
-        mins = int(num_secs / 60)
-        secs = int(num_secs - mins * 60)
-        chunks = []
-        if mins > 0:
-            chunks.append('{} mins'.format(mins))
-        if secs > 0:
-            chunks.append('{} secs'.format(secs))
-
-        total = ', '.join(chunks)
-        if not total:
-            total = '0 secs'
-
-        return total
+        return get_elapsed_time(self.start_time, self.end_time)
 
     def get_progress(self):
         if self.status == Build.Status.FINISHED:
@@ -108,11 +112,13 @@ class Build(models.Model):
                 build_id__lt=self.build_id
             ).order_by('-build_id').first()
 
+        duration = get_elapsed_time(self.start_time, timezone.now())
         diff = get_total_number_of_seconds(timezone.now() - self.start_time)
         if not last_build:
             return {
                 'percentage':
                 100.0 * (1.0 - exp(-diff / 300.0)),
+                'duration': duration,
             }
 
         previous_duration = get_total_number_of_seconds(
@@ -120,12 +126,20 @@ class Build(models.Model):
 
         if diff > previous_duration:
             over = diff - previous_duration
+            estimation_steps = max(previous_duration / 10, 10)
+            eta = (int(over / estimation_steps) + 1) * estimation_steps + \
+                previous_duration
+
             return {
-                'percentage': 100.0 * previous_duration / diff,
-                'over': 100.0 * over / diff,
+                'percentage': 100.0 * previous_duration / eta,
+                'over': 100.0 * over / eta,
+                'duration': duration,
             }
 
-        return {'percentage': 100.0 * diff / previous_duration}
+        return {
+            'percentage': 100.0 * diff / previous_duration,
+            'duration': duration,
+        }
 
     def get_external_url(self):
         return settings.BASE_URL + \
