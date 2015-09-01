@@ -1,5 +1,9 @@
-td .progress {
+.build-row td .progress {
     margin: 0;
+}
+
+.table tr.build-row td {
+    vertical-align: middle;
 }
 
 .full-width {
