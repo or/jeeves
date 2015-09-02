@@ -57,13 +57,14 @@ function scroll_log(delay) {
 }
 
 swampdragon.ready(function() {
-  /*setInterval(function () {
+  setInterval(function () {
     swampdragon.callRouter('get_detail_header', 'build-changes',
       {id: {{ build.id }}, log_offset: current_log_offset},
       function(context, data) {
         console.log(data);
         if (data.html != null) {
           $('#build-' + {{ build.id }}).replaceWith(data.html);
+          update_progress_bars();
         }
         if (data.log_data != null) {
           var log = $('#log');
@@ -74,7 +75,6 @@ swampdragon.ready(function() {
         }
       });
   }, 2000);
-  */
 });
 
 scroll_log(0);

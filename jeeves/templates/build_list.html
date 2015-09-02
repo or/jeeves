@@ -45,27 +45,23 @@
 {% endblock %}
 
 {% block js %}
-/*
 swampdragon.onChannelMessage(function (channels, message) {
   console.log(message.data);
-  if (message.data.refresh_needed) {
-    window.location.reload();
-  }
   var i;
   for (i = 0; i < message.data.build_list_changes.length; ++i) {
     var build_data = message.data.build_list_changes[i];
     var element = $('#build-' + build_data.id);
-    if (element == null) {
-      continue;
+    if (element.length == 0) {
+      window.location.reload();
     }
     element.replaceWith(build_data.html);
   }
+  update_progress_bars();
 });
 
 swampdragon.ready(function() {
   swampdragon.subscribe('build-changes', 'build-list', null);
 });
-*/
 {% endblock %}
 
 {% block jsx %}
