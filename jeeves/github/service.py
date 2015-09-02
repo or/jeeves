@@ -17,7 +17,7 @@ def match_to_projects(payload):
         repository = GithubRepository.objects.get(
             name=payload['repository']['full_name'])
     except GithubRepository.DoesNotExist:
-        return []
+        return [], None
 
     projects = set()
     excludes = set()
@@ -30,14 +30,17 @@ def match_to_projects(payload):
         else:
             projects.add(config.project)
 
-    return list(projects - excludes)
+    return list(projects - excludes), repository
 
 
 def handle_push_hook_request(payload):
     branch = payload['ref'][len('refs/heads/'):]
-    projects = match_to_projects(payload)
+    projects, repository = match_to_projects(payload)
+    reason = "triggered by GitHub push"
     for project in projects:
-        schedule_build(project, branch, metadata=payload)
+        schedule_build(project,
+                       repository=repository.name, branch=branch,
+                       metadata=payload, reason=reason)
 
 
 def build_finished_callback(sender, build, *args, **kwargs):

@@ -73,12 +73,14 @@ class Build(models.Model):
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
     modified_time = models.DateTimeField(auto_now=True, db_index=True)
+    repository = models.CharField(max_length=512, null=True, blank=True)
     branch = models.CharField(max_length=1024, null=True, blank=True)
     metadata = models.TextField(null=True, blank=True)
     log_file = models.FileField(
         storage=FileSystemStorage(location="logs"), null=True, blank=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
                               null=True, blank=True)
+    reason = models.CharField(max_length=128, null=True, blank=False)
 
     class Meta:
         unique_together = ('project', 'build_id')
@@ -157,6 +159,12 @@ class Build(models.Model):
                 'build-view',
                 kwargs=dict(project_slug=self.project.slug,
                             build_id=self.build_id))
+
+    def get_repository_link(self):
+        if not self.repository:
+            return None
+
+        return 'https://github.com/{}'.format(self.repository)
 
     def set_metadata(self, metadata):
         self.metadata = json.dumps(metadata)

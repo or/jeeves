@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView
 
 from jeeves.core.models import Build, Project
-from jeeves.core.service import schedule_build
+from jeeves.core.service import reschedule_build
 
 
 class ProjectListView(ListView):
@@ -71,8 +71,7 @@ class BuildRescheduleView(BuildDetailView):
         self.kwargs = kwargs
 
         build = self.get_object()
-        new_build = schedule_build(
-            build.project, build.branch, metadata=build.get_metadata())
+        new_build = reschedule_build(build, user=request.user)
 
         messages.add_message(
             request, messages.SUCCESS,

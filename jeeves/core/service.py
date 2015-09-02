@@ -13,8 +13,10 @@ from .models import Build
 from .signals import build_start, build_finished
 
 
-def schedule_build(project, branch=None, metadata=None):
-    build = Build.objects.create(project=project, branch=branch,
+def schedule_build(project, repository=None, branch=None,
+                   metadata=None, reason=None):
+    build = Build.objects.create(project=project, repository=repository,
+                                 branch=branch, reason=reason,
                                  creation_time=timezone.now())
     build.set_metadata(metadata)
     build.status = Build.Status.SCHEDULED
@@ -23,6 +25,18 @@ def schedule_build(project, branch=None, metadata=None):
     start_build.delay(build.id)
 
     return build
+
+
+def reschedule_build(build, user=None):
+    reason = "rescheduled from build #{}".format(build.build_id)
+    if user:
+        reason += ' by {}'.format(user.username)
+
+    new_build = schedule_build(
+        build.project, build.repository, build.branch,
+        metadata=build.get_metadata(), reason=reason)
+
+    return new_build
 
 
 @shared_task
