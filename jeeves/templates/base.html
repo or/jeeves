@@ -22,6 +22,8 @@
     <![endif]-->
     {% swampdragon_settings %}
     <script type="text/javascript" src="{% static 'swampdragon/js/dist/swampdragon.min.js' %}"></script>
+    <script src="https://fb.me/react-with-addons-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
   </head>
   <body role="document">
   <nav class="navbar navbar-inverse navbar-static-top">
@@ -43,8 +45,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <script>
+    <script type="text/jsx" src="{% static 'js/progress_bar.jsx' %}"></script>
+    <script type="text/javascript">
     {% block js %}
+    {% endblock %}
+    </script>
+    <script type="text/jsx">
+    {% block jsx %}
     {% endblock %}
     </script>
   </body>

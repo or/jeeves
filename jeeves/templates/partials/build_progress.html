@@ -1,11 +1,4 @@
-{% with progress=build.get_progress %}
-<div class="progress" style="width:90%">
-  <div class="progress-bar progress-bar-success {% if not progress.over %}active progress-bar-striped{% endif %}"
-       style="width:{{ progress.percentage }}%">
-    <span>{{ progress.duration }}</span>
-  </div>
-  {% if progress.over %}
-  <div class="progress-bar progress-bar-warning active progress-bar-striped" style="width:{{ progress.over }}%"></div>
-  {% endif %}
+<div id="progress-{{ build.id }}" class="progress build-progress"
+     data-initial-elapsed-time="{{ build.get_elapsed_time|default:"" }}"
+     data-estimated-time="{{ build.get_estimated_time|default:"" }}">
 </div>
-{% endwith %}

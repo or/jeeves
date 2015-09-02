@@ -110,10 +110,16 @@ class Build(models.Model):
 
         return get_elapsed_time(self.start_time, self.end_time)
 
-    def get_progress(self):
+    def get_elapsed_time(self):
         if self.status == Build.Status.FINISHED:
-            return {'percentage': 100}
+            return None
 
+        if not self.start_time:
+            return None
+
+        return get_total_number_of_seconds(timezone.now() - self.start_time)
+
+    def get_estimated_time(self):
         last_build = \
             Build.objects.filter(
                 project=self.project,
@@ -124,34 +130,13 @@ class Build(models.Model):
                 build_id__lt=self.build_id
             ).order_by('-build_id').first()
 
-        duration = get_elapsed_time(self.start_time, timezone.now())
-        diff = get_total_number_of_seconds(timezone.now() - self.start_time)
         if not last_build:
-            return {
-                'percentage':
-                100.0 * (1.0 - exp(-diff / 300.0)),
-                'duration': duration,
-            }
+            return None
 
         previous_duration = get_total_number_of_seconds(
             last_build.end_time - last_build.start_time)
 
-        if diff > previous_duration:
-            over = diff - previous_duration
-            estimation_steps = max(previous_duration / 10, 10)
-            eta = (int(over / estimation_steps) + 1) * estimation_steps + \
-                previous_duration
-
-            return {
-                'percentage': 100.0 * previous_duration / eta,
-                'over': 100.0 * over / eta,
-                'duration': duration,
-            }
-
-        return {
-            'percentage': 100.0 * diff / previous_duration,
-            'duration': duration,
-        }
+        return previous_duration
 
     def get_external_url(self):
         return settings.BASE_URL + \

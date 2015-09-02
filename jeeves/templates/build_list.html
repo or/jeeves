@@ -45,6 +45,7 @@
 {% endblock %}
 
 {% block js %}
+/*
 swampdragon.onChannelMessage(function (channels, message) {
   console.log(message.data);
   if (message.data.refresh_needed) {
@@ -64,4 +65,9 @@ swampdragon.onChannelMessage(function (channels, message) {
 swampdragon.ready(function() {
   swampdragon.subscribe('build-changes', 'build-list', null);
 });
+*/
+{% endblock %}
+
+{% block jsx %}
+update_progress_bars();
 {% endblock %}

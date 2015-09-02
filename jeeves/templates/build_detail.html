@@ -57,7 +57,7 @@ function scroll_log(delay) {
 }
 
 swampdragon.ready(function() {
-  setInterval(function () {
+  /*setInterval(function () {
     swampdragon.callRouter('get_detail_header', 'build-changes',
       {id: {{ build.id }}, log_offset: current_log_offset},
       function(context, data) {
@@ -74,8 +74,13 @@ swampdragon.ready(function() {
         }
       });
   }, 2000);
+  */
 });
 
 scroll_log(0);
 
+{% endblock %}
+
+{% block jsx %}
+update_progress_bars();
 {% endblock %}
