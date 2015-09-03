@@ -26,21 +26,21 @@
     <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
   </head>
   <body role="document">
-  <nav class="navbar navbar-inverse navbar-static-top">
-    <a href="{% url 'project-list' %}" class="navbar-brand">Jeeves</a>
-    <div class="container-fluid">
-      <ul class="nav navbar-nav">
-        <li class="{% active_page request 'project-list' %}">
-          <a href="{% url 'project-list' %}">
-            Projects
-          </a>
-        </li>
-      </ul>
-      <span class="navbar-text navbar-right" style="margin-right:1em;">Very good, sir.</span>
-    </div>
-  </nav>
-{% block content %}
-{% endblock %}
+    <nav class="navbar navbar-inverse navbar-static-top">
+      <a href="{% url 'project-list' %}" class="navbar-brand">Jeeves</a>
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li class="{% active_page request 'project-list' %}">
+            <a href="{% url 'project-list' %}">
+              Projects
+            </a>
+          </li>
+        </ul>
+        <span class="navbar-text navbar-right" style="margin-right:1em;">Very good, sir.</span>
+      </div>
+    </nav>
+    {% block content %}
+    {% endblock %}
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
