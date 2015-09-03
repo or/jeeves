@@ -19,4 +19,17 @@
     display: block;
     width: 100%;
     color: black;
- }
+}
+
+.commit-info {
+    width: 60%;
+}
+
+.commit-message {
+    max-height: 10em;
+    border: 0;
+}
+
+.commit-author {
+    color:grey;
+}

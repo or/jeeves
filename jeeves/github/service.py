@@ -36,6 +36,8 @@ def match_to_projects(payload):
 def handle_push_hook_request(payload):
     branch = payload['ref'][len('refs/heads/'):]
     commit = payload['head_commit']['id']
+    import json
+    json.dump(payload, open('data2.json', 'w'))
     projects, repository = match_to_projects(payload)
     reason = "triggered by GitHub push"
     for project in projects:

@@ -190,3 +190,10 @@ class Build(models.Model):
 
     def get_metadata(self):
         return json.loads(self.metadata)
+
+    def get_commit(self):
+        metadata = self.get_metadata()
+        if not metadata:
+            return None
+
+        return metadata.get('head_commit')
