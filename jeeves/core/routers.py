@@ -45,7 +45,8 @@ class BuildChangesRouter(route_handler.BaseRouter):
                 message['log_data'] = new_log_data
                 message['log_offset'] = new_log_offset
 
-        self.send(message)
+        if message:
+            self.send(message)
 
 
 route_handler.register(BuildChangesRouter)
@@ -63,7 +64,8 @@ def get_changed_build_list_rows():
         last_timestamp = now - timedelta(seconds=3600)
 
     diff_data = []
-    for build in Build.objects.filter(modified_time__gt=last_timestamp - timedelta(seconds=2)):
+    for build in Build.objects.filter(
+            modified_time__gt=last_timestamp - timedelta(seconds=1.25)):
         template = get_template("partials/build_list_row.html")
         progress_html = template.render({'build': build})
         diff_data.append({'id': build.id, 'html': progress_html})
