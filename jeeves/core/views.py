@@ -60,7 +60,8 @@ class BuildDetailView(DetailView):
         return obj
 
     def get_context_data(self, *args, **kwargs):
-        context = super(BuildDetailView, self).get_context_data(*args, **kwargs)
+        context = super(BuildDetailView, self) \
+            .get_context_data(*args, **kwargs)
         context['project'] = self.project
         return context
 

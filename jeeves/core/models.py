@@ -1,5 +1,4 @@
 import json
-from math import exp
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
