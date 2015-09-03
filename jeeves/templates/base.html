@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load navbar %}
 {% load swampdragon_tags %}
+{% load gravatar %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -37,7 +38,14 @@
             </a>
           </li>
         </ul>
-        <span class="navbar-text navbar-right" style="margin-right:1em;">Very good, sir.</span>
+        <span class="navbar-text navbar-right" style="margin-right:1em;">
+        {% if user.is_authenticated %}
+          <a href="{% url 'logout' %}">logout</a> |
+          {{ user.username }}
+          &nbsp;
+          <img src="{{ user.email|gravatar }}?s=32"/>
+        {% endif %}
+        </span>
       </div>
     </nav>
     {% block content %}

@@ -4,15 +4,25 @@ Index
 {% endblock %}
 
 {% block content %}
+<div class="container">
+  <form class="form-signin" method="post" action="{% url 'login' %}" style="margin: 0 auto;width:350px">
 {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
+    <div role="alert" class="alert alert-danger">Your username and password didn't match. Please try again.</div>
 {% endif %}
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-    <table>
-    {{ form }}
-    </table>
+    {% csrf_token %}
+    <h2 class="form-signin-heading">Please log in</h2>
+    <label for="id_username" class="sr-only">Username</label>
+    <input type="text" id="id_username" name="username"
+           class="form-control" placeholder="Username" required autofocus
+           value={{ form.username.value|default:"" }}>
+    <label for="id_password" class="sr-only">Password</label>
+    <input type="password" id="id_password" name="password"
+           class="form-control" placeholder="Password" required
+           value={{ form.password.value|default:"" }}>
+    &nbsp;
     <input type="hidden" name="next" value="{{ next }}" />
-    <input type="submit" value="login" />
-</form>
+    <input type="submit" class="btn btn-lg btn-primary btn-block" value="Log in"/>
+  </form>
+</div>
 {% endblock %}
+
