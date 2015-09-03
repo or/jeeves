@@ -25,13 +25,15 @@
       {{ build.get_duration|default:'' }}
     {% endif %}
   </td>
-  <td>
+  <td style="width:10%">
     {% if build.get_commit_link %}
       <a href="{{ build.get_commit_link }}" target="_blank">
         <span class="fa fa-github" style="font-size:1.1em"></span>
         {{ build.commit|slice:":8" }}
       </a>
     {% endif %}
+  </td>
+  <td>
     <a href="{{ build.get_branch_link }}" target="_blank">
       <span class="fa fa-github" style="font-size:1.1em"></span>
       {{ build.branch }}
