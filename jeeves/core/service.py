@@ -16,8 +16,7 @@ from .signals import build_start, build_finished
 def schedule_build(project, repository=None, branch=None,
                    metadata=None, reason=None):
     build = Build.objects.create(project=project, repository=repository,
-                                 branch=branch, reason=reason,
-                                 creation_time=timezone.now())
+                                 branch=branch, reason=reason)
     build.set_metadata(metadata)
     build.status = Build.Status.SCHEDULED
     build.save()

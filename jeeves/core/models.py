@@ -69,7 +69,7 @@ class Build(models.Model):
     build_id = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES,
                               default=Status.SCHEDULED)
-    creation_time = models.DateTimeField()
+    creation_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
     modified_time = models.DateTimeField(auto_now=True, db_index=True)

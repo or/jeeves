@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='build',
             name='creation_time',
-            field=models.DateTimeField(default=datetime.datetime(2015, 8, 31, 21, 19, 28, 164245, tzinfo=utc)),
+            field=models.DateTimeField(auto_now_add=True, default=datetime.datetime(2015, 8, 31, 21, 19, 28, 164245, tzinfo=utc)),
             preserve_default=False,
         ),
         migrations.AddField(
