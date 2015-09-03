@@ -75,6 +75,7 @@ class Build(models.Model):
     modified_time = models.DateTimeField(auto_now=True, db_index=True)
     repository = models.CharField(max_length=512, null=True, blank=True)
     branch = models.CharField(max_length=1024, null=True, blank=True)
+    commit = models.CharField(max_length=40, null=True, blank=True)
     metadata = models.TextField(null=True, blank=True)
     log_file = models.FileField(
         storage=FileSystemStorage(location="logs"), null=True, blank=True)
@@ -149,7 +150,15 @@ class Build(models.Model):
         if not self.repository:
             return None
 
-        return 'https://github.com/{}'.format(self.repository)
+        if self.commit:
+            return 'https://github.com/{}/commit/{}' \
+                .format(self.repository, self.commit)
+
+        if self.branch:
+            return 'https://github.com/{}/tree/{}' \
+                .format(self.repository, self.branch)
+
+        return 'https://github.com/{}/'.format(self.repository)
 
     def set_metadata(self, metadata):
         self.metadata = json.dumps(metadata)

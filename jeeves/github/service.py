@@ -35,12 +35,14 @@ def match_to_projects(payload):
 
 def handle_push_hook_request(payload):
     branch = payload['ref'][len('refs/heads/'):]
+    commit = payload['head_commit']['id']
     projects, repository = match_to_projects(payload)
     reason = "triggered by GitHub push"
     for project in projects:
         schedule_build(project,
                        repository=repository.name, branch=branch,
-                       metadata=payload, reason=reason)
+                       metadata=payload, reason=reason,
+                       commit=commit)
 
 
 def build_finished_callback(sender, build, *args, **kwargs):

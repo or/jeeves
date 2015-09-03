@@ -14,9 +14,9 @@ from .signals import build_start, build_finished
 
 
 def schedule_build(project, repository=None, branch=None,
-                   metadata=None, reason=None):
+                   metadata=None, reason=None, commit=None):
     build = Build.objects.create(project=project, repository=repository,
-                                 branch=branch, reason=reason)
+                                 branch=branch, reason=reason, commit=commit)
     build.set_metadata(metadata)
     build.status = Build.Status.SCHEDULED
     build.save()
@@ -32,8 +32,8 @@ def reschedule_build(build, user=None):
         reason += ' by {}'.format(user.username)
 
     new_build = schedule_build(
-        build.project, build.repository, build.branch,
-        metadata=build.get_metadata(), reason=reason)
+        build.project, repositiory=build.repository, branch=build.branch,
+        metadata=build.get_metadata(), reason=reason, commit=build.commit)
 
     return new_build
 
@@ -50,6 +50,7 @@ def start_build(build_pk):
 
     script_context = dict(
         branch=build.branch,
+        commit=build.commit,
         metadata=build.get_metadata(),
         build_id=build.id,
         build_url=build.get_external_url()
