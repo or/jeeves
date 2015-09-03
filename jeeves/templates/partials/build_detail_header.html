@@ -1,3 +1,4 @@
+{% load gravatar %}
 <div id="build-{{ build.id }}">
   <h1>Build #{{ build.build_id }} ({{ build.status }})
     <a href="{% url 'build-reschedule' project_slug=build.project.slug build_id=build.build_id %}"
@@ -30,7 +31,8 @@
             {% with commit=build.get_commit %}
               <pre class="commit-message">{{ commit.message }}</pre>
               <span class="commit-author">
-                <span>by {{ commit.author.name }} &lt;{{ commit.author.email }}&gt;</span>
+                <img src="{{ commit.author.email|gravatar }}?s=32"/>
+                <span>{{ commit.author.name }} &lt;{{ commit.author.email }}&gt;</span>
                 {% if commit.author.username %}
                   |
                   <a href="https://github.com/{{ commit.author.username }}" target="_blank">
