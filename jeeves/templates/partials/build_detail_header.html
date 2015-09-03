@@ -22,15 +22,35 @@
   <div class="row container">
     <div class="panel panel-default col-sm-6">
       <div class="panel-body">
-        <p><strong>Created:</strong> {{ build.creation_time }}</p>
-        {% if build.start_time %}
-          <p><strong>Started:</strong> {{ build.start_time }}</p>
-        {% endif %}
         {% if build.status == 'running' %}
           {% include "partials/build_progress.html" with build=build %}
-        {% else %}
-          <p><strong>Duration:</strong> {{ build.get_duration|default:'' }}</p>
         {% endif %}
+        <ul class="list-group pull-right">
+          {% if build.get_commit_link %}
+          <li class="list-group-item" style="border:0;padding:2px;color:grey;">
+            <a href="{{ build.get_commit_link }}" target="_blank">
+              <span class="fa fa-github" style="font-size:1.1em;"></span> {{ build.commit|slice:":8" }}
+            </a>
+          </li>
+          {% endif %}
+          {% if build.get_branch_link %}
+          <li class="list-group-item" style="border:0;padding:2px;color:grey;">
+            <a href="{{ build.get_branch_link }}" target="_blank">
+              <span class="fa fa-github" style="font-size:1.1em;"></span> {{ build.branch }}
+            </a>
+          </li>
+          {% endif %}
+          <li class="list-group-item" style="border:0;padding:2px;color:grey;">
+            <span class="fa fa-calendar"></span>
+            {{ build.get_age }} ago
+          </li>
+          {% if build.status == 'finished' %}
+          <li class="list-group-item" style="border:0;padding:2px;color:grey;">
+            <span class="glyphicon glyphicon-time"></span>
+            ran for {{ build.get_duration|default:'' }}
+          </li>
+          {% endif %}
+        </ul>
       </div>
     </div>
     <div class="col-lg-6">

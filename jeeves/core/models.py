@@ -105,6 +105,25 @@ class Build(models.Model):
 
         super(Build, self).save(*args, **kwargs)
 
+    def get_age(self):
+        num_seconds = get_total_number_of_seconds(
+            timezone.now() - self.creation_time)
+
+        units = [
+            ('year', 60 * 60 * 24 * 365.2425),
+            ('month', 60 * 60 * 24 * 30.5),
+            ('week', 60 * 60 * 24 * 7),
+            ('day', 60 * 60 * 24),
+            ('hour', 60 * 60),
+            ('min', 60),
+            ('sec', 1),
+        ]
+        for unit, length in units:
+            number = num_seconds // length
+            if number or length == 1:
+                return '{} {}{}'.format(
+                    number, unit, 's' if number != 1 else '')
+
     def get_duration(self):
         if not self.start_time or not self.end_time:
             return None
@@ -150,15 +169,21 @@ class Build(models.Model):
         if not self.repository:
             return None
 
-        if self.commit:
-            return 'https://github.com/{}/commit/{}' \
-                .format(self.repository, self.commit)
-
-        if self.branch:
-            return 'https://github.com/{}/tree/{}' \
-                .format(self.repository, self.branch)
-
         return 'https://github.com/{}/'.format(self.repository)
+
+    def get_commit_link(self):
+        if not self.repository or not self.commit:
+            return None
+
+        return 'https://github.com/{}/commit/{}' \
+            .format(self.repository, self.commit)
+
+    def get_branch_link(self):
+        if not self.repository or not self.branch:
+            return None
+
+        return 'https://github.com/{}/tree/{}' \
+            .format(self.repository, self.branch)
 
     def set_metadata(self, metadata):
         self.metadata = json.dumps(metadata)

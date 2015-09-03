@@ -26,11 +26,16 @@
     {% endif %}
   </td>
   <td>
-    {% if build.get_repository_link %}
-      <a href="{{ build.get_repository_link }}" target="_blank">{{ build.branch }}</a>
-    {% else %}
-      {{ build.branch }}
+    {% if build.get_commit_link %}
+      <a href="{{ build.get_commit_link }}" target="_blank">
+        <span class="fa fa-github" style="font-size:1.1em"></span>
+        {{ build.commit|slice:":8" }}
+      </a>
     {% endif %}
+    <a href="{{ build.get_branch_link }}" target="_blank">
+      <span class="fa fa-github" style="font-size:1.1em"></span>
+      {{ build.branch }}
+    </a>
   </td>
   <td>
       {{ build.reason|default:'' }}
