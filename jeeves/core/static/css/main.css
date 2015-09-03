@@ -33,3 +33,12 @@
 .commit-author {
     color:grey;
 }
+
+#log {
+    border: 0;
+    max-height: 1000px;
+    background: black;
+    color: lightgrey;
+    margin: 0;
+    border-radius: 0;
+}
