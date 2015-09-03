@@ -113,7 +113,6 @@ LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
 GITHUB_HOOK_SECRET = "foobar"
 
-SINGLE_THREAD_MODE = False
 BASE_URL = 'http://127.0.0.1:1729'
 
 BROKER_URL = 'django://'
@@ -127,7 +126,6 @@ CELERY_IMPORTS = [
     'jeeves.core.service',
 ]
 CELERY_CREATE_DIRS=1
-
 
 SWAMP_DRAGON_CONNECTION = (
     'swampdragon.connections.sockjs_connection.DjangoSubscriberConnection',
