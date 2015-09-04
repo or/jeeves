@@ -101,7 +101,7 @@ class Build(models.Model):
             last_id = \
                 Build.objects.filter(project=self.project) \
                 .aggregate(last_id=models.Max('build_id'))['last_id']
-            self.build_id = last_id and last_id + 1 or 1
+            self.build_id = last_id + 1 if last_id else 1
 
         super(Build, self).save(*args, **kwargs)
 
