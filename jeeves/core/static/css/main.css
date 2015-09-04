@@ -19,8 +19,8 @@
 }
 
 .progress-bar {
-    transition: width 1s linear;
-    -webkit-transition: width 1s linear;
+    transition: none;
+    -webkit-transition: none;
 }
 
 .progress span {
