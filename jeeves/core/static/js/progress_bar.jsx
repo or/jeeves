@@ -142,10 +142,6 @@ AgeDisplay = React.createClass({
   },
 
   render() {
-    setTimeout((function() {
-      this.setState({now: $.now() / 1000});
-    }).bind(this), 1000);
-
     units = [
       ['year', 60 * 60 * 24 * 365.2425],
       ['month', 60 * 60 * 24 * 30.5],
@@ -161,6 +157,7 @@ AgeDisplay = React.createClass({
 
     var age;
     var i;
+    var sleep_time;
     for (i = 0; i < units.length; ++i) {
       var unit = units[i][0];
       var duration = units[i][1];
@@ -170,9 +167,20 @@ AgeDisplay = React.createClass({
         if (number != 1) {
           age += 's';
         }
+        if (duration == 1) {
+          sleep_time = 1;
+        } else {
+          // calculate the timespan til the next number at this duration,
+          // give 1 extra second, to make sure it'll result in a switch
+          sleep_time = (number + 1) * duration - num_seconds + 1;
+        }
         break;
       }
     }
+
+    setTimeout((function() {
+      this.setState({now: $.now() / 1000});
+    }).bind(this), sleep_time * 1000);
 
     return (
       <span>{age} ago</span>
