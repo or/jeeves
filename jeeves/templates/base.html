@@ -43,7 +43,7 @@
           <a href="{% url 'logout' %}">logout</a> |
           {{ user.username }}
           &nbsp;
-          <img src="{{ user.email|gravatar }}?s=32"/>
+          <img src="{{ user.email|gravatar }}" style="width:32px"/>
         {% endif %}
         </span>
       </div>
