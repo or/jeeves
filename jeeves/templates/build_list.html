@@ -31,7 +31,7 @@
 
   <div class="table-responsive">
     <table class="table table-striped">
-      <tbody>
+      <tbody id="build-table">
       {% for build in object_list %}
         {% ifchanged %}<tr><td colspan="8" class="h5"><strong>{{ build.creation_time|date:"DATE_FORMAT" }}</strong></td></tr>{% endifchanged %}
         {% include "partials/build_list_row.html" with build=build %}
@@ -47,20 +47,17 @@
 {% block js %}
 swampdragon.onChannelMessage(function (channels, message) {
   console.log(message.data);
-  var i;
-  for (i = 0; i < message.data.build_list_changes.length; ++i) {
-    var build_data = message.data.build_list_changes[i];
-    var element = $('#build-' + build_data.id);
-    if (element.length == 0) {
-      window.location.reload();
-    }
-    element.replaceWith(build_data.html);
+  var element = $('#build-' + message.data.id);
+  if (element.length == 0) {
+    $('#build-table').prepend(message.data.row_html);
+  } else {
+    element.replaceWith(message.data.row_html);
   }
   update_progress_bars();
 });
 
 swampdragon.ready(function() {
-  swampdragon.subscribe('build-changes', 'build-list', null);
+  swampdragon.subscribe('build-changes', 'build-change', null);
 });
 {% endblock %}
 

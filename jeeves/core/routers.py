@@ -1,16 +1,11 @@
-from datetime import timedelta
-
 from swampdragon import route_handler
 from swampdragon.pubsub_providers.data_publisher import publish_data
-from tornado.ioloop import PeriodicCallback
 
 from django.template.loader import get_template
 from django.utils import timezone
 
 from jeeves.core.models import Build
 
-pcb = None
-last_timestamp = None
 last_update_time = {}
 
 
@@ -19,8 +14,8 @@ class BuildChangesRouter(route_handler.BaseRouter):
     valid_verbs = ['subscribe', 'get_detail_header']
 
     def get_subscription_channels(self, **kwargs):
-        get_changed_build_list_rows()
-        return ['build-list']
+        #get_changed_build_list_rows()
+        return ['build-change']
 
     def get_detail_header(self, **kwargs):
         global last_update_time
@@ -52,26 +47,7 @@ class BuildChangesRouter(route_handler.BaseRouter):
 route_handler.register(BuildChangesRouter)
 
 
-def get_changed_build_list_rows():
-    global pcb, last_timestamp
-
-    if pcb is None:
-        pcb = PeriodicCallback(get_changed_build_list_rows, 1000)
-        pcb.start()
-
-    now = timezone.now()
-    if not last_timestamp:
-        last_timestamp = now - timedelta(seconds=3600)
-
-    diff_data = []
-    for build in Build.objects.filter(
-            modified_time__gt=last_timestamp - timedelta(seconds=1.25)):
-        template = get_template("partials/build_list_row.html")
-        progress_html = template.render({'build': build})
-        diff_data.append({'id': build.id, 'html': progress_html})
-
-    last_timestamp = now
-
-    if diff_data:
-        message = {'build_list_changes': diff_data}
-        publish_data('build-list', message)
+def send_build_change(build):
+    template = get_template("partials/build_list_row.html")
+    row_html = template.render({'build': build})
+    publish_data('build-change', {'id': build.id, 'row_html': row_html})

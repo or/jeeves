@@ -29,8 +29,9 @@ function get_time_difference_string(num_seconds) {
   return result;
 }
 
-function update_progress_bars() {
-  var pbars = $('.build-progress');
+function update_progress_bars(base) {
+  var pbars;
+  pbars = $('.build-progress');
 
   pbars.each(function (index) {
     var pbar = $(this);
