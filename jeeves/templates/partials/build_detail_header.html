@@ -59,7 +59,8 @@
             </a>
           </li>
           {% endif %}
-          <li class="list-group-item" style="border:0;padding:2px;color:grey;">
+          <li class="list-group-item" style="border:0;padding:2px;color:grey;"
+              title="{{ build.creation_time|date:"d.m.Y H:i:s" }}">
             <span class="fa fa-calendar"></span>
             {{ build.get_age }} ago
           </li>

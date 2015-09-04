@@ -17,12 +17,16 @@
       {% endif %}
     {% endif %}
   </td>
-  <td style="width:10%">{{ build.creation_time|date:"H:i:s" }}</td>
+  <td style="width:10%">
+    <span title="{{ build.creation_time|date:"H:i:s" }}">
+      {{ build.get_age }} ago
+    </span>
+  </td>
   <td style="width:20%">
     {% if build.status == 'running' %}
       {% include "partials/build_progress.html" with build=build %}
     {% else %}
-      {{ build.get_duration|default:'' }}
+      ran for {{ build.get_duration|default:'' }}
     {% endif %}
   </td>
   <td style="width:10%">

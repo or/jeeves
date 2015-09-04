@@ -1,3 +1,7 @@
+.build-row {
+    color: grey;
+}
+
 .build-row td .progress {
     margin: 0;
 }
