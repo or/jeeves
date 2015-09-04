@@ -18,6 +18,11 @@
     position: relative;
 }
 
+.progress-bar {
+    transition: width 1s linear;
+    -webkit-transition: width 1s linear;
+}
+
 .progress span {
     position: absolute;
     display: block;
