@@ -92,7 +92,7 @@ ProgressBar = React.createClass({
     var overtime_bar;
     if (overtime) {
       overtime_bar = <div
-          className="progress-bar progress-bar-warning progress-bar-striped active"
+          className="progress-bar progress-bar-warning progress-bar-striped"
           style={{width: overtime_percentage + "%" }} />;
     }
 
@@ -100,7 +100,7 @@ ProgressBar = React.createClass({
       <div className="progress">
         <div className={
               "progress-bar progress-bar-success" +
-                (!overtime ? " progress-bar-striped active" : "")
+                (!overtime ? " progress-bar-striped" : "")
              }
              style={{width: normal_percentage + "%" }}
              ><span>{elapsed_time_string}</span></div>
