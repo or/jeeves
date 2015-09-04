@@ -31,7 +31,7 @@
             {% with commit=build.get_commit %}
               <pre class="commit-message">{{ commit.message }}</pre>
               <span class="commit-author">
-                <img src="{{ commit.author.email|gravatar }}?s=32"/>
+                <img src="{{ commit.author.email|gravatar }}" style="width:32px"/>
                 <span>{{ commit.author.name }} &lt;{{ commit.author.email }}&gt;</span>
                 {% if commit.author.username %}
                   |
