@@ -39,7 +39,7 @@ def handle_push_hook_request(payload):
     import json
     json.dump(payload, open('data2.json', 'w'))
     projects, repository = match_to_projects(payload)
-    reason = "triggered by GitHub push"
+    reason = "GitHub push"
     for project in projects:
         schedule_build(project,
                        repository=repository.name, branch=branch,

@@ -27,7 +27,7 @@ def schedule_build(project, repository=None, branch=None,
 
 
 def reschedule_build(build, user=None):
-    reason = "rescheduled from build #{}".format(build.build_id)
+    reason = "re-build #{}".format(build.build_id)
     if user:
         reason += ' by {}'.format(user.username)
 
