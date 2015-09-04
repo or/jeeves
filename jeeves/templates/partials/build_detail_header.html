@@ -62,7 +62,9 @@
           <li class="list-group-item" style="border:0;padding:2px;color:grey;"
               title="{{ build.creation_time|date:"d.m.Y H:i:s" }}">
             <span class="fa fa-calendar"></span>
-            {{ build.get_age }} ago
+            <span>
+              {% include "partials/build_age.html" with build=build %}
+            </span>
           </li>
           {% if build.status == 'finished' %}
           <li class="list-group-item" style="border:0;padding:2px;color:grey;">

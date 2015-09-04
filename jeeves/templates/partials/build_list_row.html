@@ -18,9 +18,7 @@
     {% endif %}
   </td>
   <td style="width:10%">
-    <span title="{{ build.creation_time|date:"H:i:s" }}">
-      {{ build.get_age }} ago
-    </span>
+    {% include "partials/build_age.html" with build=build %}
   </td>
   <td style="width:20%">
     {% if build.status == 'running' %}

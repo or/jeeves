@@ -64,6 +64,7 @@ swampdragon.ready(function() {
         if (data.html != null) {
           $('#build-' + {{ build.id }}).replaceWith(data.html);
           update_progress_bars();
+          update_age_displays();
         }
         if (data.log_data != null) {
           var log = $('#log');
@@ -82,4 +83,5 @@ scroll_log(0);
 
 {% block jsx %}
 update_progress_bars();
+update_age_displays();
 {% endblock %}

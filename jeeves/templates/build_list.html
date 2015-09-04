@@ -54,6 +54,7 @@ swampdragon.onChannelMessage(function (channels, message) {
     element.replaceWith(message.data.row_html);
   }
   update_progress_bars();
+  update_age_displays();
 });
 
 swampdragon.ready(function() {
@@ -63,4 +64,5 @@ swampdragon.ready(function() {
 
 {% block jsx %}
 update_progress_bars();
+update_age_displays();
 {% endblock %}

@@ -105,9 +105,11 @@ class Build(models.Model):
 
         super(Build, self).save(*args, **kwargs)
 
+    def get_age_in_seconds(self):
+        return get_total_number_of_seconds(timezone.now() - self.creation_time)
+
     def get_age(self):
-        num_seconds = get_total_number_of_seconds(
-            timezone.now() - self.creation_time)
+        num_seconds = self.get_age_in_seconds()
 
         units = [
             ('year', 60 * 60 * 24 * 365.2425),

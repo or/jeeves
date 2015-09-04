@@ -29,7 +29,7 @@ function get_time_difference_string(num_seconds) {
   return result;
 }
 
-function update_progress_bars(base) {
+function update_progress_bars() {
   var pbars;
   pbars = $('.build-progress');
 
@@ -37,11 +37,12 @@ function update_progress_bars(base) {
     var pbar = $(this);
     if (pbar.data('initial-timestamp') == null) {
       pbar.data('initial-timestamp', $.now() / 1000);
+    } else {
+      return;
     }
 
     React.render(
       React.createElement(ProgressBar, {
-        id: pbar.prop('id'),
         initial_timestamp: pbar.data('initial-timestamp'),
         initial_elapsed_time: pbar.data('initial-elapsed-time'),
         estimated_time: pbar.data('estimated-time'),
@@ -51,6 +52,27 @@ function update_progress_bars(base) {
   });
 }
 
+function update_age_displays() {
+  var ages;
+  ages = $('.age-display');
+
+  ages.each(function (index) {
+    var age_element = $(this);
+    if (age_element.data('initial-timestamp') == null) {
+      age_element.data('initial-timestamp', $.now() / 1000);
+    } else {
+      return;
+    }
+
+    React.render(
+      React.createElement(AgeDisplay, {
+        initial_timestamp: age_element.data('initial-timestamp'),
+        initial_age: age_element.data('initial-age'),
+      }),
+      age_element.get()[0]
+    );
+  });
+}
 
 ProgressBar = React.createClass({
   getInitialState() {
@@ -107,6 +129,53 @@ ProgressBar = React.createClass({
              ><span>{elapsed_time_string}</span></div>
         {overtime_bar}
       </div>
+    );
+  }
+});
+
+
+AgeDisplay = React.createClass({
+  getInitialState() {
+    return {
+      now: $.now() / 1000,
+    }
+  },
+
+  render() {
+    setTimeout((function() {
+      this.setState({now: $.now() / 1000});
+    }).bind(this), 1000);
+
+    units = [
+      ['year', 60 * 60 * 24 * 365.2425],
+      ['month', 60 * 60 * 24 * 30.5],
+      ['week', 60 * 60 * 24 * 7],
+      ['day', 60 * 60 * 24],
+      ['hour', 60 * 60],
+      ['min', 60],
+      ['sec', 1],
+    ]
+
+    var start_time = this.props.initial_timestamp - this.props.initial_age;
+    var num_seconds = this.state.now - start_time;
+
+    var age;
+    var i;
+    for (i = 0; i < units.length; ++i) {
+      var unit = units[i][0];
+      var duration = units[i][1];
+      number = Math.floor(num_seconds / duration);
+      if (number > 0 || duration == 1) {
+        age = '' + number + ' ' + unit;
+        if (number != 1) {
+          age += 's';
+        }
+        break;
+      }
+    }
+
+    return (
+      <span>{age} ago</span>
     );
   }
 });
