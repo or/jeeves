@@ -98,9 +98,10 @@ class Build(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id and not self.build_id:
-            self.build_id = \
+            last_id = \
                 Build.objects.filter(project=self.project) \
-                .aggregate(last_id=models.Max('build_id'))['last_id'] + 1
+                .aggregate(last_id=models.Max('build_id'))['last_id']
+            self.build_id = last_id and last_id + 1 or 1
 
         super(Build, self).save(*args, **kwargs)
 
