@@ -14,7 +14,6 @@ class BuildChangesRouter(route_handler.BaseRouter):
     valid_verbs = ['subscribe', 'get_detail_header']
 
     def get_subscription_channels(self, **kwargs):
-        #get_changed_build_list_rows()
         return ['build-change']
 
     def get_detail_header(self, **kwargs):

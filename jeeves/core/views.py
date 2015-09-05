@@ -1,7 +1,5 @@
 from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.http.response import (Http404, HttpResponse, HttpResponseRedirect,
-                                  JsonResponse)
+from django.http.response import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template import RequestContext
