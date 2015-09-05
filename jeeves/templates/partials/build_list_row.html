@@ -48,10 +48,6 @@
       {{ build.reason|default:'' }}
   </td>
   <td style="width:5%">
-    <a href="{% url 'build-reschedule' project_slug=build.project.slug build_id=build.build_id %}"
-       role="button" class="pull-right btn btn-default"
-       data-toggle="tooltip" title="Schedule a build based on this one">
-      <span class="glyphicon glyphicon-retweet"></span>
-    </a>
+   {% include "partials/build_schedule_copy_link.html" with build=build %}
   </td>
 </tr>

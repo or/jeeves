@@ -66,7 +66,7 @@ class BuildDetailView(DetailView):
         return context
 
 
-class BuildRescheduleView(BuildDetailView):
+class BuildCopyScheduleView(BuildDetailView):
     def get(self, request, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
