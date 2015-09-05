@@ -55,6 +55,7 @@ class Build(models.Model):
         BLOCKED = "blocked"
         RUNNING = "running"
         FINISHED = "finished"
+        CANCELLED = "cancelled"
 
     class Result:
         SUCCESS = "success"
@@ -65,6 +66,7 @@ class Build(models.Model):
         (Status.BLOCKED, Status.BLOCKED),
         (Status.RUNNING, Status.RUNNING),
         (Status.FINISHED, Status.FINISHED),
+        (Status.CANCELLED, Status.CANCELLED),
     ]
     RESULT_CHOICES = [
         (Result.SUCCESS, Result.SUCCESS),
@@ -208,3 +210,6 @@ class Build(models.Model):
             return None
 
         return metadata.get('head_commit')
+
+    def is_cancellable(self):
+        return self.status in (Build.Status.SCHEDULED, Build.Status.BLOCKED)

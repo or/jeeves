@@ -20,6 +20,11 @@ def schedule_build(build):
     start_build.delay(build.id)
 
 
+def cancel_build(build):
+    build.status = Build.Status.CANCELLED
+    build.save()
+
+
 def schedule_new_build(project, repository=None, branch=None,
                        metadata=None, reason=None, commit=None):
     build = Build.objects.create(project=project, repository=repository,
@@ -65,7 +70,7 @@ def start_build(build_pk):
             blocking_key=build.blocking_key,
             build_id__lt=build.build_id
         ).exclude(
-            status=Build.Status.FINISHED
+            status__in=(Build.Status.CANCELLED, Build.Status.FINISHED)
         ).order_by('-build_id').first()
 
         build.blocked_by = blocking_build

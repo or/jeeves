@@ -16,6 +16,10 @@ urlpatterns = [
         login_required(views.BuildDetailView.as_view()),
         name="build-view"),
 
+    url('^(?P<project_slug>[^/]+)/(?P<build_id>\d+)/cancel/$',
+        login_required(views.BuildCancelView.as_view()),
+        name="build-cancel"),
+
     url('^(?P<project_slug>[^/]+)/(?P<build_id>\d+)/copy/$',
         login_required(views.BuildCopyScheduleView.as_view()),
         name="build-schedule-copy"),

@@ -11,7 +11,7 @@ def handle_build_saved(sender, instance, *args, **kwargs):
     build = instance
     send_build_change(build)
 
-    if build.status == Build.Status.FINISHED:
+    if build.status in (Build.Status.CANCELLED, Build.Status.FINISHED):
         blocked_builds = Build.objects.filter(
             blocked_by=build,
             status=Build.Status.BLOCKED,

@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView
 
 from jeeves.core.models import Build, Project
-from jeeves.core.service import copy_and_schedule_new_build
+from jeeves.core.service import cancel_build, copy_and_schedule_new_build
 
 
 class ProjectListView(ListView):
@@ -78,6 +78,22 @@ class BuildCopyScheduleView(BuildDetailView):
             request, messages.SUCCESS,
             'Scheduled build #{} based on build #{}.'.format(
                 new_build.build_id, build.build_id))
+
+        return HttpResponseRedirect(
+            reverse('build-list',
+                    kwargs=dict(project_slug=build.project.slug)))
+
+    def post(self, request, *args, **kwargs):
+        return HttpResponse(status_code=403)
+
+
+class BuildCancelView(BuildDetailView):
+    def get(self, request, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+        build = self.get_object()
+        cancel_build(build)
 
         return HttpResponseRedirect(
             reverse('build-list',
