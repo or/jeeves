@@ -36,7 +36,7 @@ def copy_and_schedule_new_build(build, user=None):
         reason += ' by {}'.format(user.username)
 
     new_build = schedule_new_build(
-        build.project, repositiory=build.repository, branch=build.branch,
+        build.project, repository=build.repository, branch=build.branch,
         metadata=build.get_metadata(), reason=reason, commit=build.commit)
 
     return new_build
