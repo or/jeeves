@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from jeeves.core.models import Project
-from jeeves.core.service import schedule_build
+from jeeves.core.service import schedule_new_build
 
 
 class Command(BaseCommand):
@@ -10,4 +10,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         project = Project.objects.get(name=options['project'])
-        schedule_build(project, reason='Triggered from management command')
+        schedule_new_build(project, reason='Triggered from management command')

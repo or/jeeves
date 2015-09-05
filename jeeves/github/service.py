@@ -7,7 +7,7 @@ from django.conf import settings
 from .models import GithubWebhookMatch, GithubRepository
 
 from jeeves.core.models import Build
-from jeeves.core.service import schedule_build
+from jeeves.core.service import schedule_new_build
 from jeeves.core.signals import build_finished
 
 
@@ -41,10 +41,10 @@ def handle_push_hook_request(payload):
     projects, repository = match_to_projects(payload)
     reason = "GitHub push"
     for project in projects:
-        schedule_build(project,
-                       repository=repository.name, branch=branch,
-                       metadata=payload, reason=reason,
-                       commit=commit)
+        schedule_new_build(project,
+                           repository=repository.name, branch=branch,
+                           metadata=payload, reason=reason,
+                           commit=commit)
 
 
 def build_finished_callback(sender, build, *args, **kwargs):

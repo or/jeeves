@@ -36,6 +36,11 @@ class Project(models.Model):
     description = models.CharField(
         max_length=1024, help_text="a description of the project")
     script = models.TextField(help_text="the script to run for the build")
+    blocking_key_template = models.CharField(
+        max_length=2048, help_text="a template for a blocking key, "
+        "builds with the same key will block each other; a constant key "
+        "will result in a blocking build queue",
+        null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -47,6 +52,7 @@ class Project(models.Model):
 class Build(models.Model):
     class Status:
         SCHEDULED = "scheduled"
+        BLOCKED = "blocked"
         RUNNING = "running"
         FINISHED = "finished"
 
@@ -56,6 +62,7 @@ class Build(models.Model):
 
     STATUS_CHOICES = [
         (Status.SCHEDULED, Status.SCHEDULED),
+        (Status.BLOCKED, Status.BLOCKED),
         (Status.RUNNING, Status.RUNNING),
         (Status.FINISHED, Status.FINISHED),
     ]
@@ -66,6 +73,7 @@ class Build(models.Model):
 
     project = models.ForeignKey(Project)
     build_id = models.IntegerField(null=True, blank=True)
+    blocking_key = models.CharField(max_length=1024, null=True, blank=True)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES,
                               default=Status.SCHEDULED)
     creation_time = models.DateTimeField(auto_now_add=True)
@@ -81,6 +89,7 @@ class Build(models.Model):
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
                               null=True, blank=True)
     reason = models.CharField(max_length=128, null=True, blank=False)
+    blocked_by = models.ForeignKey('Build', null=True, blank=True)
 
     class Meta:
         unique_together = ('project', 'build_id')

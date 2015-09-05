@@ -1,12 +1,12 @@
 <tr id="build-{{ build.id }}" class="build-row h4">
   <td class="text-center" style="width:5%;">
-    <a href="{% url 'build-view' project_slug=build.project.slug build_id=build.build_id %}">
-      #{{ build.build_id }}
-    </a>
+    {% include "partials/build_link.html" with build=build %}
   </td>
   <td class="text-center" style="width:10%">
     {% if build.status == 'scheduled' %}
     <span class="label label-default full-width">scheduled</span>
+    {% elif build.status == 'blocked' %}
+    <span class="label label-default full-width">blocked</span>
     {% elif build.status == 'running' %}
     <span class="label label-warning full-width">running</span>
     {% elif build.status == 'finished' %}
@@ -23,6 +23,9 @@
   <td style="width:20%">
     {% if build.status == 'running' %}
       {% include "partials/build_progress.html" with build=build %}
+    {% elif build.status == 'blocked' %}
+      waiting for build
+      {% include "partials/build_link.html" with build=build.blocked_by %}
     {% elif build.status == 'finished' %}
       ran for {{ build.get_duration|default:'' }}
     {% endif %}
