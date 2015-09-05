@@ -192,3 +192,20 @@ AgeDisplay = React.createClass({
     );
   }
 });
+
+
+function do_action(url) {
+  $.ajax({
+    url: url,
+
+    dataType: 'json',
+
+    success: function (data) {
+      $('#messages').replaceWith(data.messages_html);
+    },
+
+    error: function (data) {
+      $('#messages').html('<div role="alert" class="alert alert-danger">An error occurred.</div>');
+    }
+  });
+}

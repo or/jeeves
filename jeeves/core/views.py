@@ -1,7 +1,10 @@
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http.response import Http404, HttpResponse, HttpResponseRedirect
+from django.http.response import (Http404, HttpResponse, HttpResponseRedirect,
+                                  JsonResponse)
 from django.shortcuts import get_object_or_404
+from django.template.loader import get_template
+from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView
 
@@ -79,9 +82,10 @@ class BuildCopyScheduleView(BuildDetailView):
             'Scheduled build #{} based on build #{}.'.format(
                 new_build.build_id, build.build_id))
 
-        return HttpResponseRedirect(
-            reverse('build-list',
-                    kwargs=dict(project_slug=build.project.slug)))
+        template = get_template("partials/messages.html")
+        data = {'messages_html': template.render(RequestContext(request))}
+
+        return JsonResponse(data)
 
     def post(self, request, *args, **kwargs):
         return HttpResponse(status_code=403)
@@ -95,9 +99,14 @@ class BuildCancelView(BuildDetailView):
         build = self.get_object()
         cancel_build(build)
 
-        return HttpResponseRedirect(
-            reverse('build-list',
-                    kwargs=dict(project_slug=build.project.slug)))
+        messages.add_message(
+            request, messages.SUCCESS,
+            'Cancelled build #{}.'.format(build.build_id))
+
+        template = get_template("partials/messages.html")
+        data = {'messages_html': template.render(RequestContext(request))}
+
+        return JsonResponse(data)
 
     def post(self, request, *args, **kwargs):
         return HttpResponse(status_code=403)

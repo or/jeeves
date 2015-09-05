@@ -22,12 +22,8 @@
     </div>
   </div>
 
+  {% include "partials/messages.html" with messages=messages %}
   <h3>Builds</h3>
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
 
   <div class="table-responsive">
     <table class="table table-striped">
