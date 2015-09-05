@@ -158,23 +158,28 @@ AgeDisplay = React.createClass({
     var age;
     var i;
     var sleep_time;
-    for (i = 0; i < units.length; ++i) {
-      var unit = units[i][0];
-      var duration = units[i][1];
-      number = Math.floor(num_seconds / duration);
-      if (number > 0 || duration == 1) {
-        age = '' + number + ' ' + unit;
-        if (number != 1) {
-          age += 's';
+    if (num_seconds < 120) {
+      age = "moments";
+      sleep_time = 1;
+    } else {
+      for (i = 0; i < units.length; ++i) {
+        var unit = units[i][0];
+        var duration = units[i][1];
+        number = Math.floor(num_seconds / duration);
+        if (number > 0 || duration == 1) {
+          age = '' + number + ' ' + unit;
+          if (number != 1) {
+            age += 's';
+          }
+          if (duration == 1) {
+            sleep_time = 1;
+          } else {
+            // calculate the timespan til the next number at this duration,
+            // give 1 extra second, to make sure it'll result in a switch
+            sleep_time = (number + 1) * duration - num_seconds + 1;
+          }
+          break;
         }
-        if (duration == 1) {
-          sleep_time = 1;
-        } else {
-          // calculate the timespan til the next number at this duration,
-          // give 1 extra second, to make sure it'll result in a switch
-          sleep_time = (number + 1) * duration - num_seconds + 1;
-        }
-        break;
       }
     }
 
