@@ -28,7 +28,7 @@ class BuildListView(ListView):
             get_object_or_404(Project, slug=self.kwargs['project_slug'])
         queryset = super(BuildListView, self).get_queryset()
         return queryset.filter(project=self.project) \
-            .select_related('project').order_by('-build_id')
+            .select_related('project').order_by('-build_id')[:20]
 
     def get_context_data(self, *args, **kwargs):
         context = super(BuildListView, self).get_context_data(*args, **kwargs)
