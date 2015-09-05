@@ -77,9 +77,9 @@ class Build(models.Model):
     build_id = models.IntegerField(null=True, blank=True)
     blocking_key = models.CharField(max_length=1024, null=True, blank=True)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES,
-                              default=Status.SCHEDULED)
-    creation_time = models.DateTimeField(auto_now_add=True)
-    start_time = models.DateTimeField(null=True, blank=True)
+                              default=Status.SCHEDULED, db_index=True)
+    creation_time = models.DateTimeField(auto_now_add=True, db_index=True)
+    start_time = models.DateTimeField(null=True, blank=True, db_index=True)
     end_time = models.DateTimeField(null=True, blank=True)
     modified_time = models.DateTimeField(auto_now=True, db_index=True)
     repository = models.CharField(max_length=512, null=True, blank=True)
@@ -95,6 +95,10 @@ class Build(models.Model):
 
     class Meta:
         unique_together = ('project', 'build_id')
+        index_together = [
+            ('project', 'build_id'),
+            ('project', 'blocking_key', 'build_id'),
+        ]
 
     def get_log(self):
         if not self.log_file:
