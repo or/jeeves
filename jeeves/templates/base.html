@@ -28,25 +28,32 @@
     <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
   </head>
   <body role="document">
-    <nav class="navbar navbar-inverse navbar-static-top">
-      <a href="{% url 'project-list' %}" class="navbar-brand">Jeeves</a>
-      <div class="container-fluid">
-        <ul class="nav navbar-nav">
-          <li class="{% active_page request 'project-list' %}">
-            <a href="{% url 'project-list' %}">
-              Projects
-            </a>
-          </li>
-        </ul>
-        <span class="navbar-text navbar-right" style="margin-right:1em;">
-        {% if user.is_authenticated %}
-          <a href="{% url 'logout' %}">logout</a> |
-          {{ user.username }}
-          &nbsp;
-          <img src="{{ user.email|gravatar }}" style="width:32px"/>
-        {% endif %}
-        </span>
-      </div>
+    <nav class="navbar navbar-inverse navbar-static-top" style="border:0;">
+      <a href="{% url 'project-list' %}" class="navbar-brand">
+        Jeeves
+      </a>
+      <ul class="nav navbar-nav" style="display:table-cell">
+        <li class="{% active_page request 'project-list' %}">
+          <a href="{% url 'project-list' %}" style="height:4em;">
+            Projects
+          </a>
+        </li>
+      </ul>
+      {% if user.is_authenticated %}
+      <img class="nav navbar-right" src="{{ user.email|gravatar }}" style="height:4em;margin:0;"/>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+             aria-haspopup="true" aria-expanded="false" style="height:4em;">
+            {{ user.username }}
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'logout' %}">logout</a></li>
+          </ul>
+        </li>
+      </ul>
+      {% endif %}
     </nav>
     {% block content %}
     {% endblock %}
