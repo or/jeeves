@@ -1,6 +1,11 @@
 ## About
 Jeeves is a lightweight environment to schedule development builds based on GitHub pushes.
 
+## Disclaimer
+Jeeves is quite young. Its code, database structure, and the master branch are volatile and at times messy.
+
+**It is not recommended for use in production at this point.**
+
 ## Requirements
 * Redis 2.0+
 * Python 2.7+ / Python 3.4+
