@@ -1,3 +1,10 @@
+## About
+Jeeves is a lightweight environment to schedule development builds based on GitHub pushes.
+
+## Requirements
+* Redis 2.0+
+* Python 2.7+ / Python 3.4+
+
 ## Quick setup locally
 
 Install `redis`, e.g. via `apt-get`:
