@@ -22,7 +22,7 @@
   <td style="width:10%">
     {% include "partials/build_age.html" with build=build %}
   </td>
-  <td style="width:20%">
+  <td style="width:15%">
     {% if build.status == 'running' %}
       {% include "partials/build_progress.html" with build=build %}
     {% elif build.status == 'blocked' %}
@@ -32,7 +32,7 @@
       ran for {{ build.get_duration|default:'' }}
     {% endif %}
   </td>
-  <td>
+  <td style="width:35%">
     <a href="{{ build.get_branch_link }}" target="_blank">
       <span class="fa fa-github" style="font-size:1.1em"></span>
       {{ build.branch }}
