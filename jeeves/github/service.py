@@ -12,7 +12,13 @@ from jeeves.core.signals import build_finished
 
 
 def match_to_projects(payload):
-    branch = payload['ref'][len('refs/heads/'):]
+    branch = payload['ref']
+    if branch.startswith('refs/tags/'):
+        # ignore tag pushes
+        return [], None
+
+    if branch.startswith('refs/heads/'):
+        branch = branch[len('refs/heads/'):]
     try:
         repository = GithubRepository.objects.get(
             name=payload['repository']['full_name'])
@@ -34,10 +40,14 @@ def match_to_projects(payload):
 
 
 def handle_push_hook_request(payload):
-    branch = payload['ref'][len('refs/heads/'):]
+    branch = payload['ref']
+    if branch.startswith('refs/tags/'):
+        # ignore tag pushes
+        return
+
+    if branch.startswith('refs/heads/'):
+        branch = branch[len('refs/heads/'):]
     commit = payload['head_commit']['id']
-    import json
-    json.dump(payload, open('data2.json', 'w'))
     projects, repository = match_to_projects(payload)
     reason = "GitHub push"
     for project in projects:
