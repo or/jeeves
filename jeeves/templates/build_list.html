@@ -54,7 +54,7 @@ swampdragon.onChannelMessage(function (channels, message) {
 });
 
 swampdragon.ready(function() {
-  swampdragon.subscribe('build-changes', 'build-change', null);
+  swampdragon.subscribe('build-changes', 'build-change-{{ project.id }}', null);
 });
 {% endblock %}
 

@@ -4,7 +4,7 @@ from swampdragon.pubsub_providers.data_publisher import publish_data
 from django.template.loader import get_template
 from django.utils import timezone
 
-from jeeves.core.models import Build
+from jeeves.core.models import Build, Project
 
 last_update_time = {}
 
@@ -14,7 +14,11 @@ class BuildChangesRouter(route_handler.BaseRouter):
     valid_verbs = ['subscribe', 'get_detail_header']
 
     def get_subscription_channels(self, **kwargs):
-        return ['build-change']
+        channels = ['build-change-all']
+        for project in Project.objects.all():
+            channels.append('build-change-{}'.format(project.id))
+
+        return channels
 
     def get_detail_header(self, **kwargs):
         global last_update_time
@@ -49,4 +53,6 @@ route_handler.register(BuildChangesRouter)
 def send_build_change(build):
     template = get_template("partials/build_list_row.html")
     row_html = template.render({'build': build})
-    publish_data('build-change', {'id': build.id, 'row_html': row_html})
+    publish_data('build-change-all', {'id': build.id, 'row_html': row_html})
+    publish_data('build-change-{}'.format(build.project.id),
+                 {'id': build.id, 'row_html': row_html})
