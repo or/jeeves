@@ -118,8 +118,7 @@ class BuildLogView(BuildDetailView):
 
         build = self.get_object()
         response = HttpResponse(content_type="text/plain")
-        build.log_file.open()
-        response.write(build.log_file.read())
+        response.write(build.get_log())
         return response
 
     def post(self, request, *args, **kwargs):

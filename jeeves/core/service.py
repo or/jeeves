@@ -9,7 +9,7 @@ from celery import shared_task
 from django.core.files import File
 from django.utils import timezone
 
-from .models import Build
+from .models import Build, Job
 from .signals import build_start, build_finished
 
 
@@ -88,42 +88,67 @@ def start_build(build_pk):
         build.save()
         return
 
-    build.log_file.save('build-{:05d}-{:05d}.log'.format(build.project.id,
-                                                         build.build_id),
-                        File(StringIO()))
     build.status = Build.Status.RUNNING
     build.start_time = timezone.now()
     build.save()
 
-    (fd, file_path) = tempfile.mkstemp(suffix='.sh', prefix='tmp')
-    script = build.project.script
-    script = script.format(**script_context)
-    os.write(fd, b"#!/bin/bash -e\n")
-    os.write(fd, script.replace('\r', '\n').encode('utf-8'))
-    os.close(fd)
-
-    st = os.stat(file_path)
-    os.chmod(file_path, st.st_mode | stat.S_IEXEC)
-
     build_start.send('core', build=build)
 
-    env_removals = ['DJANGO_SETTINGS_MODULE', 'VIRTUAL_ENV', 'CD_VIRTUAL_ENV']
-    env = dict(os.environ)
-    for env_entry in env_removals:
-        if env_entry in env:
-            env.pop(env_entry)
+    dependencies = {}
+    for jd in build.project.jobdescription_set.all():
+        dependencies[jd.name] = \
+            jd.dependencies.split(', ') if jd.dependencies else []
 
-    out = open(build.log_file.path, 'w')
-    try:
-        result = subprocess.check_call(
-            [file_path],
-            stdout=out,
-            stderr=out,
-            env=env)
-    except subprocess.CalledProcessError as e:
-        result = e.returncode
+    all_passed = True
+    for job_description in build.project.jobdescription_set.order_by('id'):
+        job = Job(build=build, name=job_description.name)
+        job.status = Job.Status.RUNNING
+        job.log_file.save('build-{:05d}-{:05d}-{}.log'
+                          .format(build.project.id,
+                                  build.build_id,
+                                  job_description.name),
+                          File(StringIO()))
+        job.save()
 
-    if not result:
+        (fd, file_path) = tempfile.mkstemp(suffix='.sh', prefix='tmp')
+        script = job_description.script
+        script = script.format(**script_context)
+        os.write(fd, b"#!/bin/bash -e\n")
+        os.write(fd, script.replace('\r', '\n').encode('utf-8'))
+        os.close(fd)
+
+        st = os.stat(file_path)
+        os.chmod(file_path, st.st_mode | stat.S_IEXEC)
+
+        env_removals = ['DJANGO_SETTINGS_MODULE', 'VIRTUAL_ENV',
+                        'CD_VIRTUAL_ENV']
+        env = dict(os.environ)
+        for env_entry in env_removals:
+            if env_entry in env:
+                env.pop(env_entry)
+
+        out = open(job.log_file.path, 'w')
+        try:
+            result = subprocess.check_call(
+                [file_path],
+                stdout=out,
+                stderr=out,
+                env=env)
+        except subprocess.CalledProcessError as e:
+            result = e.returncode
+
+        job.status = Job.Status.FINISHED
+        job.end_time = timezone.now()
+
+        if not result:
+            job.result = Job.Result.SUCCESS
+        else:
+            job.result = Job.Result.FAILURE
+            all_passed = False
+
+        job.save()
+
+    if all_passed:
         build.result = Build.Result.SUCCESS
     else:
         build.result = Build.Result.FAILURE

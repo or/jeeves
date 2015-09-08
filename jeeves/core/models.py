@@ -35,7 +35,6 @@ class Project(models.Model):
     slug = models.SlugField(help_text="the slug to identify the project")
     description = models.CharField(
         max_length=1024, help_text="a description of the project")
-    script = models.TextField(help_text="the script to run for the build")
     blocking_key_template = models.CharField(
         max_length=2048, help_text="a template for a blocking key, "
         "builds with the same key will block each other; a constant key "
@@ -49,17 +48,37 @@ class Project(models.Model):
         return self.build_set.filter(status=Build.Status.RUNNING).count()
 
 
+class JobDescription(models.Model):
+    project = models.ForeignKey(Project)
+    name = models.SlugField(
+        name="name",
+        max_length=128, help_text="the name of the job inside the build")
+    dependencies = models.CharField(
+        max_length=1024, null=True, blank=True,
+        help_text="a list of job names this job depends on")
+    script = models.TextField(help_text="the script to run for the job")
+    report_result = models.BooleanField(
+        help_text="flag whether the result of this job should be "
+                  "reported on GitHub")
+
+    class Meta:
+        unique_together = ('project', 'name')
+
+    def __str__(self):
+        return self.project.slug + '.' + self.name
+
+
 class Build(models.Model):
+    class Result:
+        SUCCESS = "success"
+        FAILURE = "failure"
+
     class Status:
         SCHEDULED = "scheduled"
         BLOCKED = "blocked"
         RUNNING = "running"
         FINISHED = "finished"
         CANCELLED = "cancelled"
-
-    class Result:
-        SUCCESS = "success"
-        FAILURE = "failure"
 
     STATUS_CHOICES = [
         (Status.SCHEDULED, Status.SCHEDULED),
@@ -68,6 +87,7 @@ class Build(models.Model):
         (Status.FINISHED, Status.FINISHED),
         (Status.CANCELLED, Status.CANCELLED),
     ]
+
     RESULT_CHOICES = [
         (Result.SUCCESS, Result.SUCCESS),
         (Result.FAILURE, Result.FAILURE),
@@ -86,12 +106,10 @@ class Build(models.Model):
     branch = models.CharField(max_length=1024, null=True, blank=True)
     commit = models.CharField(max_length=40, null=True, blank=True)
     metadata = models.TextField(null=True, blank=True)
-    log_file = models.FileField(
-        storage=FileSystemStorage(location="logs"), null=True, blank=True)
-    result = models.CharField(max_length=16, choices=RESULT_CHOICES,
-                              null=True, blank=True)
     reason = models.CharField(max_length=128, null=True, blank=False)
     blocked_by = models.ForeignKey('Build', null=True, blank=True)
+    result = models.CharField(max_length=16, choices=RESULT_CHOICES,
+                              null=True, blank=True)
 
     class Meta:
         unique_together = ('project', 'build_id')
@@ -99,17 +117,6 @@ class Build(models.Model):
             ('project', 'build_id'),
             ('project', 'blocking_key', 'build_id'),
         ]
-
-    def get_log(self):
-        if not self.log_file:
-            return ''
-
-        self.log_file.open()
-        self.log_file.seek(0)
-        data = self.log_file.read()
-        self.log_file.close()
-
-        return data
 
     def save(self, *args, **kwargs):
         if not self.id and not self.build_id:
@@ -220,3 +227,66 @@ class Build(models.Model):
 
     def is_cancellable(self):
         return self.status in (Build.Status.SCHEDULED, Build.Status.BLOCKED)
+
+    def get_log(self):
+        data = []
+        for job in self.job_set.order_by('id'):
+            data.append("# Running job '{}'".format(job.name))
+            data.append(job.get_log().rstrip('\n '))
+            if job.status == Job.Status.FINISHED:
+                data.append(
+                    "# Job '{}' finished with {}\n"
+                    .format(
+                        job.name,
+                        'success' if
+                        job.result == Job.Result.SUCCESS else 'failure'))
+
+        return '\n'.join(data)
+
+
+class Job(models.Model):
+    class Status:
+        RUNNING = "running"
+        FINISHED = "finished"
+
+    class Result:
+        SUCCESS = "success"
+        FAILURE = "failure"
+
+    STATUS_CHOICES = [
+        (Status.RUNNING, Status.RUNNING),
+        (Status.FINISHED, Status.FINISHED),
+    ]
+
+    RESULT_CHOICES = [
+        (Result.SUCCESS, Result.SUCCESS),
+        (Result.FAILURE, Result.FAILURE),
+    ]
+
+    build = models.ForeignKey(Build)
+    name = models.SlugField(name="name", max_length=128)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES,
+                              default=Status.RUNNING, db_index=True)
+    start_time = models.DateTimeField(auto_now_add=True, db_index=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    result = models.CharField(max_length=16, choices=RESULT_CHOICES,
+                              null=True, blank=True)
+    log_file = models.FileField(
+        storage=FileSystemStorage(location="logs"), null=True, blank=True)
+
+    class Meta:
+        unique_together = ('build', 'name')
+
+    def __str__(self):
+        return '{}.{}'.format(self.build, self.job.name)
+
+    def get_log(self):
+        if not self.log_file:
+            return ''
+
+        self.log_file.open()
+        self.log_file.seek(0)
+        data = self.log_file.read().decode('utf-8')
+        self.log_file.close()
+
+        return data

@@ -34,14 +34,12 @@ class BuildChangesRouter(route_handler.BaseRouter):
         last_update_time[build_pk] = timezone.now()
 
         log_offset = kwargs['log_offset']
-        if build.log_file:
-            build.log_file.open()
-            build.log_file.seek(log_offset)
-            new_log_data = build.log_file.read().decode('utf-8')
-            new_log_offset = log_offset + len(new_log_data)
-            if new_log_data:
-                message['log_data'] = new_log_data
-                message['log_offset'] = new_log_offset
+        log = build.get_log()
+        new_log_data = log[log_offset:]
+        new_log_offset = len(log)
+        if new_log_data:
+            message['log_data'] = new_log_data
+            message['log_offset'] = new_log_offset
 
         if message:
             self.send(message)
