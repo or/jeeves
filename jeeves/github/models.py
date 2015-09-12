@@ -9,6 +9,9 @@ class GithubRepository(models.Model):
                                       "in <account>/<repository> form",
                             unique=True)
 
+    class Meta:
+        verbose_name_plural = "Github repositories"
+
     def __str__(self):
         return self.name
 
@@ -28,6 +31,7 @@ class GithubWebhookMatch(models.Model):
     exclude = models.BooleanField()
 
     class Meta:
+        verbose_name_plural = "Github webhook matches"
         unique_together = ('project', 'repository', 'branch_match')
 
     def __str__(self):
