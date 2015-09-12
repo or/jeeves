@@ -10,7 +10,7 @@ from django.core.files import File
 from django.utils import timezone
 
 from .models import Build, Job
-from .signals import build_start, build_finished
+from .signals import build_start, build_finished, reportable_job_finished
 
 
 def schedule_build(build):
@@ -137,6 +137,8 @@ def start_build(build_pk):
         except subprocess.CalledProcessError as e:
             result = e.returncode
 
+        out.close()
+
         job.status = Job.Status.FINISHED
         job.end_time = timezone.now()
 
@@ -146,7 +148,11 @@ def start_build(build_pk):
             job.result = Job.Result.FAILURE
             all_passed = False
 
+        details = job.get_duration()
+
         job.save()
+        if job_description.report_result:
+            reportable_job_finished.send('core', job=job, details=details)
 
     if all_passed:
         build.result = Build.Result.SUCCESS

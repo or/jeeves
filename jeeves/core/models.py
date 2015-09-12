@@ -118,6 +118,9 @@ class Build(models.Model):
             ('project', 'blocking_key', 'build_id'),
         ]
 
+    def __str__(self):
+        return '#{}'.format(self.build_id)
+
     def save(self, *args, **kwargs):
         if not self.id and not self.build_id:
             last_id = \
@@ -278,7 +281,7 @@ class Job(models.Model):
         unique_together = ('build', 'name')
 
     def __str__(self):
-        return '{}.{}'.format(self.build, self.job.name)
+        return '{}.{}'.format(self.build, self.name)
 
     def get_log(self):
         if not self.log_file:
@@ -290,3 +293,37 @@ class Job(models.Model):
         self.log_file.close()
 
         return data
+
+    def get_duration(self):
+        if not self.start_time or not self.end_time:
+            return None
+
+        return get_elapsed_time(self.start_time, self.end_time)
+
+    def get_elapsed_time(self):
+        if self.status == Job.Status.FINISHED:
+            return None
+
+        if not self.start_time:
+            return None
+
+        return get_total_number_of_seconds(timezone.now() - self.start_time)
+
+    def get_estimated_time(self):
+        last_job = \
+            Job.objects.filter(
+                build=self.build,
+                status=Job.Status.FINISHED,
+                result=Job.Result.SUCCESS,
+                start_time__isnull=False,
+                end_time__isnull=False,
+                build__build_id__lt=self.build.build_id
+            ).order_by('-build__build_id').first()
+
+        if not last_job:
+            return None
+
+        previous_duration = get_total_number_of_seconds(
+            last_job.end_time - last_job.start_time)
+
+        return previous_duration
