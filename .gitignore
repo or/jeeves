@@ -1,3 +1,4 @@
 *.pyc
 /static
 jeeves/settings.py
+/logs
