@@ -30,7 +30,7 @@ $ cp jeeves/settings.py.template jeeves/settings.py
 Setup the database and create a superuser:
 ```
 $ ./manage.py migrate
-$ ./manage.py createsuperusier
+$ ./manage.py createsuperuser
 ```
 
 ## Run Jeeves locally
