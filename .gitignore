@@ -4,3 +4,4 @@ jeeves/settings.py
 /logs
 /target
 .nrepl-port
+db.sqlite3
