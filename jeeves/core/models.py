@@ -237,6 +237,9 @@ class Build(models.Model):
                        kwargs={'project_slug': self.project.slug,
                                'build_id': self.build_id})
 
+    def get_metadata(self):
+        return self.metadata or {}
+
     def get_commit(self):
         if not self.metadata:
             return None
