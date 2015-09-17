@@ -6,5 +6,6 @@ git+https://github.com/PyGithub/PyGithub@master
 celery==3.1.18
 SwampDragon==0.4.2.2
 jsonfield==1.0.3
+toolz==0.7.4
 
 ipython==4.0.0

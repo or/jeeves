@@ -2,3 +2,5 @@
 /static
 jeeves/settings.py
 /logs
+/target
+.nrepl-port

@@ -22,6 +22,8 @@ Install Python requirements. A virtualenv is recommended.
 $ pip install -r requirements.txt
 ```
 
+Install the Boot build tool for Clojure, see http://boot-clj.com/
+
 Use settings template and adjust as needed:
 ```
 $ cp jeeves/settings.py.template jeeves/settings.py
@@ -31,6 +33,11 @@ Setup the database and create a superuser:
 ```
 $ ./manage.py migrate
 $ ./manage.py createsuperuser
+```
+
+Compile ClojureScript to JavaScript:
+```
+$ boot build
 ```
 
 ## Run Jeeves locally
@@ -54,4 +61,11 @@ which just prints a few lines, sleeps a bit, prints a few more lines.
 ## Schedule a test build
 ```
 $ ./manage.py schedule_build <project slug>
+```
+
+## Develop ClojureScript
+
+Automatically compile ClojureScript on save:
+```
+$ boot dev
 ```
