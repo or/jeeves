@@ -219,7 +219,7 @@ class Build(models.Model):
         if not self.metadata:
             return {}
 
-        return json.loads(self.metadata)
+        return json.loads(self.metadata) or {}
 
     def get_commit(self):
         metadata = self.get_metadata()
