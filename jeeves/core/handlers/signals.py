@@ -1,8 +1,8 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from jeeves.core.models import Build
-from jeeves.core.routers import send_build_change
+from jeeves.core.routers import send_build_change, send_build_delete
 from jeeves.core.service import schedule_build
 
 
@@ -19,3 +19,8 @@ def handle_build_saved(sender, instance, *args, **kwargs):
 
         for blocked_build in blocked_builds:
             schedule_build(blocked_build)
+
+
+@receiver(post_delete, sender=Build)
+def handle_build_delete(sender, instance, *args, **kwargs):
+    send_build_delete(instance)

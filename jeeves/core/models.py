@@ -185,6 +185,12 @@ class Build(models.Model):
 
         return previous_duration
 
+    def get_view_url(self):
+        return reverse(
+                'build-view',
+                kwargs=dict(project_slug=self.project.slug,
+                            build_id=self.build_id))
+
     def get_external_url(self):
         return settings.BASE_URL + \
             reverse(
@@ -212,6 +218,11 @@ class Build(models.Model):
         return 'https://github.com/{}/tree/{}' \
             .format(self.repository, self.branch)
 
+    def get_schedule_copy_url(self):
+        return reverse('build-schedule-copy',
+                       kwargs={'project_slug': self.project.slug,
+                               'build_id': self.build_id})
+
     def set_metadata(self, metadata):
         self.metadata = json.dumps(metadata)
 
@@ -219,7 +230,7 @@ class Build(models.Model):
         if not self.metadata:
             return {}
 
-        return json.loads(self.metadata)
+        return json.loads(self.metadata) or {}
 
     def get_commit(self):
         metadata = self.get_metadata()
