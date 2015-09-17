@@ -7,4 +7,3 @@ class CoreConfig(AppConfig):
 
     def ready(self):
         import jeeves.core.handlers.signals  # noqa
-        import jeeves.github.handlers.signals  # noqa

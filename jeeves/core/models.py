@@ -1,4 +1,4 @@
-import json
+import jsonfield
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -105,7 +105,7 @@ class Build(models.Model):
     repository = models.CharField(max_length=512, null=True, blank=True)
     branch = models.CharField(max_length=1024, null=True, blank=True)
     commit = models.CharField(max_length=40, null=True, blank=True)
-    metadata = models.TextField(null=True, blank=True)
+    metadata = jsonfield.JSONField()
     reason = models.CharField(max_length=128, null=True, blank=False)
     blocked_by = models.ForeignKey('Build', null=True, blank=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
@@ -212,21 +212,11 @@ class Build(models.Model):
         return 'https://github.com/{}/tree/{}' \
             .format(self.repository, self.branch)
 
-    def set_metadata(self, metadata):
-        self.metadata = json.dumps(metadata)
-
-    def get_metadata(self):
-        if not self.metadata:
-            return {}
-
-        return json.loads(self.metadata)
-
     def get_commit(self):
-        metadata = self.get_metadata()
-        if not metadata:
+        if not self.metadata:
             return None
 
-        return metadata.get('head_commit')
+        return self.metadata.get('head_commit')
 
     def is_cancellable(self):
         return self.status in (Build.Status.SCHEDULED, Build.Status.BLOCKED)
@@ -274,6 +264,7 @@ class Job(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
                               null=True, blank=True)
+    result_details = models.CharField(max_length=1024, null=True, blank=True)
     log_file = models.FileField(
         storage=FileSystemStorage(location="logs"), null=True, blank=True)
 

@@ -33,11 +33,11 @@
     {% endif %}
   </td>
   <td style="width:2em; height: 2em; padding: 0;">
-    {% if build.get_metadata.sender.avatar_url %}
-    <a href="{{ build.get_metadata.sender.html_url }}" target="_blank">
-      <img src="{{ build.get_metadata.sender.avatar_url }}"
+    {% if build.metadata.sender.avatar_url %}
+    <a href="{{ build.metadata.sender.html_url }}" target="_blank">
+      <img src="{{ build.metadata.sender.avatar_url }}"
            style="width:2em; height: 2em;"
-           title="github/{{ build.get_metadata.sender.login }}"/>
+           title="github/{{ build.metadata.sender.login }}"/>
     </a>
     {% endif %}
   </td>

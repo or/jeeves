@@ -10,8 +10,9 @@ from jinja2 import Template
 from django.core.files import File
 from django.utils import timezone
 
-from .models import Build, Job
-from .signals import build_start, build_finished, reportable_job_finished
+from jeeves.core.models import Build, Job
+from jeeves.core.signals import (build_started, build_finished,
+                                 job_started, job_finished)
 
 
 def schedule_build(build):
@@ -30,7 +31,7 @@ def schedule_new_build(project, repository=None, branch=None,
                        metadata=None, reason=None, commit=None):
     build = Build.objects.create(project=project, repository=repository,
                                  branch=branch, reason=reason, commit=commit)
-    build.set_metadata(metadata)
+    build.metadata = metadata
     schedule_build(build)
 
     return build
@@ -43,7 +44,7 @@ def copy_and_schedule_new_build(build, user=None):
 
     new_build = schedule_new_build(
         build.project, repository=build.repository, branch=build.branch,
-        metadata=build.get_metadata(), reason=reason, commit=build.commit)
+        metadata=build.metadata, reason=reason, commit=build.commit)
 
     return new_build
 
@@ -58,7 +59,7 @@ def start_build(build_pk):
     script_context = dict(
         branch=build.branch,
         commit=build.commit,
-        metadata=build.get_metadata(),
+        metadata=build.metadata,
         build_id=build.id,
         build_url=build.get_external_url()
     )
@@ -94,14 +95,15 @@ def start_build(build_pk):
     build.start_time = timezone.now()
     build.save()
 
-    build_start.send('core', build=build)
+    build_started.send('core', build=build)
 
     known_jobs = set()
     dependencies = {}
     for jd in build.project.jobdescription_set.all():
         known_jobs.add(jd.name.lower())
         dependencies[jd.name.lower()] = \
-            [x.lower() for x in jd.dependencies.split(', ')] if jd.dependencies else []
+            [x.lower() for x in jd.dependencies.split(', ')] \
+            if jd.dependencies else []
 
     result_map = {}
     all_passed = True
@@ -127,6 +129,7 @@ def start_build(build_pk):
                                       job_description.name),
                               File(StringIO()))
             job.save()
+            job_started.send('core', job=job)
 
             failed_dependencies = []
             unknown_dependencies = []
@@ -147,18 +150,22 @@ def start_build(build_pk):
                 job.status = Job.Status.FINISHED
                 job.end_time = timezone.now()
                 job.result = Job.Result.FAILURE
-                job.save()
 
                 all_passed = False
 
-                if job_description.report_result:
-                    info = []
-                    if failed_dependencies:
-                        info.append('failed: ' + ', '.join(failed_dependencies))
-                    if unknown_dependencies:
-                        info.append('unknown: ' + ', '.join(unknown_dependencies))
-                    details = '; '.join(info)
-                    reportable_job_finished.send('core', job=job, details=details)
+                info = []
+                if failed_dependencies:
+                    info.append(
+                        'failed: ' + ', '.join(failed_dependencies))
+
+                if unknown_dependencies:
+                    info.append(
+                        'unknown: ' + ', '.join(unknown_dependencies))
+
+                job.result_details = '; '.join(info)
+                job.save()
+
+                job_finished.send('core', job=job)
 
                 result_map[job_description.name.lower()] = job
                 continue
@@ -203,18 +210,18 @@ def start_build(build_pk):
                 job.result = Job.Result.FAILURE
                 all_passed = False
 
-            details = job.get_duration()
+            job.result_details = job.get_duration()
 
             job.save()
-            if job_description.report_result:
-                reportable_job_finished.send('core', job=job, details=details)
+            job_finished.send('core', job=job)
 
             result_map[job_description.name.lower()] = job
 
         if jobs_to_do == jobs_left_to_do:
             # this shouldn't happen, but to avoid an endless loop,
             # let's fail hard here
-            raise Exception('iteration over jobs_to_do made no progress: {}'.format(jobs_to_do))
+            raise Exception('iteration over jobs_to_do made no progress: {}'
+                            .format(jobs_to_do))
 
         jobs_to_do = jobs_left_to_do
 

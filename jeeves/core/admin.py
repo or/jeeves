@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import Build, Project, JobDescription, Job
 
 from jeeves.github.admin import GithubWebhookMatchInline
+from jeeves.notification.admin import NotificationTargetInline
 
 
 class JobDescriptionInline(admin.TabularInline):
@@ -16,7 +17,8 @@ class ProjectAdmin(admin.ModelAdmin):
 
     inlines = [
         JobDescriptionInline,
-        GithubWebhookMatchInline
+        GithubWebhookMatchInline,
+        NotificationTargetInline,
     ]
 
 
