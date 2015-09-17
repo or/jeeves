@@ -1,13 +1,17 @@
+import json
+
 from django.contrib import messages
 from django.http.response import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template import RequestContext
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView
 
 from jeeves.core.models import Build, Project
 from jeeves.core.service import cancel_build, copy_and_schedule_new_build
+from jeeves.core.routers import build_info
 
 
 class ProjectListView(ListView):
@@ -33,6 +37,8 @@ class BuildListView(ListView):
     def get_context_data(self, *args, **kwargs):
         context = super(BuildListView, self).get_context_data(*args, **kwargs)
         context['project'] = self.project
+        context['all_builds'] = mark_safe(
+            json.dumps(map(build_info, Build.objects.order_by('-build_id'))))
         return context
 
 

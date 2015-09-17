@@ -1,5 +1,6 @@
 from swampdragon import route_handler
 from swampdragon.pubsub_providers.data_publisher import publish_data
+from toolz import merge
 
 from django.template.loader import get_template
 from django.utils import timezone
@@ -11,12 +12,12 @@ last_update_time = {}
 
 class BuildChangesRouter(route_handler.BaseRouter):
     route_name = 'build-changes'
-    valid_verbs = ['subscribe', 'get_detail_header']
+    valid_verbs = ['subscribe', 'get_detail_header', 'get_all_builds']
 
     def get_subscription_channels(self, **kwargs):
         channels = ['build-change-all']
         for project in Project.objects.all():
-            channels.append('build-change-{}'.format(project.id))
+            channels.append('build-update-json-{}'.format(project.id))
 
         return channels
 
@@ -44,13 +45,45 @@ class BuildChangesRouter(route_handler.BaseRouter):
         if message:
             self.send(message)
 
+    def get_all_builds(self, **kwargs):
+        self.send({'builds': map(build_info, Build.objects.order_by('-build_id'))})
+
 
 route_handler.register(BuildChangesRouter)
+
+
+def build_info(build):
+    return merge(
+        {k: getattr(build, k) for k in [
+            'status',
+            'result',
+            'commit',
+            'branch',
+            'reason',
+        ]},
+        {
+            'build-id': build.build_id,
+            'view-url': build.get_view_url(),
+            'branch-url': build.get_branch_link(),
+            'schedule-copy-url': build.get_schedule_copy_url(),
+            'cancellable?': build.is_cancellable(),
+            'age-in-seconds': build.get_age_in_seconds(),
+            'estimated-duration': build.get_estimated_time(),
+            'duration': build.get_duration(),
+            'sender-avatar-url': build.get_metadata().get('sender', {}).get('avatar_url'),
+            'sender-html-url': build.get_metadata().get('sender', {}).get('html_url'),
+            'sender-login': build.get_metadata().get('sender', {}).get('login')
+        }
+    )
 
 
 def send_build_change(build):
     template = get_template("partials/build_list_row.html")
     row_html = template.render({'build': build})
-    publish_data('build-change-all', {'id': build.id, 'row_html': row_html})
-    publish_data('build-change-{}'.format(build.project.id),
-                 {'id': build.id, 'row_html': row_html})
+    publish_data('build-update-json-{}'.format(build.project.id), {'change': 'update',
+                                                                   'build': build_info(build)})
+
+
+def send_build_delete(build):
+    publish_data('build-update-json-{}'.format(build.project.id), {'change': 'delete',
+                                                                   'build-id': build.build_id})

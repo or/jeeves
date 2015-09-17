@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static from staticfiles %}
 {% block title %}Jeeves - {{ project.name }} - Builds{% endblock %}
 
 {% block content %}
@@ -23,42 +24,31 @@
   </div>
 
   {% include "partials/messages.html" with messages=messages %}
-  <h3>Builds</h3>
-
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <tbody id="build-table">
-      {% for build in object_list %}
-        {% ifchanged %}<tr><td colspan="8" class="h5"><strong>{{ build.creation_time|date:"DATE_FORMAT" }}</strong></td></tr>{% endifchanged %}
-        {% include "partials/build_list_row.html" with build=build %}
-      {% empty %}
-        <tr><td>No builds yet.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  <div id="builds-root"></div>
 </div>
 {% endblock %}
 
 {% block js %}
+</script>
+<script type="text/javascript" src="{% static 'jeeves/build-list.js' %}"></script>
+<script type="text/javascript">
 swampdragon.onChannelMessage(function (channels, message) {
-  console.log(message.data);
-  var element = $('#build-' + message.data.id);
-  if (element.length == 0) {
-    $('#build-table').prepend(message.data.row_html);
-  } else {
-    element.replaceWith(message.data.row_html);
+  console.log(channels, message.data);
+  if (message.data['change'] == "update") {
+    jeeves.core.accept_build(message.data['build']);
   }
-  update_progress_bars();
-  update_age_displays();
+  if (message.data['change'] == "delete") {
+    jeeves.core.delete_build(message.data['build-id']);
+  }
 });
 
 swampdragon.ready(function() {
-  swampdragon.subscribe('build-changes', 'build-change-{{ project.id }}', null);
+  swampdragon.subscribe('build-changes', 'build-update-json-{{ project.id }}', null);
 });
-{% endblock %}
 
-{% block jsx %}
-update_progress_bars();
-update_age_displays();
+$(function() {
+    build_data = {{ all_builds }};
+    jeeves.core.accept_builds(build_data);
+    jeeves.core.mount_build_list($('#builds-root')[0]);
+})
 {% endblock %}
