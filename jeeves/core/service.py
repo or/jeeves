@@ -5,6 +5,7 @@ import tempfile
 from io import StringIO
 
 from celery import shared_task
+from jinja2 import Template
 
 from django.core.files import File
 from django.utils import timezone
@@ -64,7 +65,8 @@ def start_build(build_pk):
 
     if build.project.blocking_key_template:
         build.blocking_key = \
-            build.project.blocking_key_template.format(**script_context)
+            Template(build.project.blocking_key_template) \
+            .render(**script_context)
         blocking_build = Build.objects.filter(
             project=build.project,
             blocking_key=build.blocking_key,
@@ -163,8 +165,10 @@ def start_build(build_pk):
 
             (fd, file_path) = tempfile.mkstemp(suffix='.sh', prefix='tmp')
             script = job_description.script
-            script = script.format(**script_context)
-            os.write(fd, b"#!/bin/bash -e\n")
+            script = Template(script).render(**script_context)
+            if not script.startswith('#!/'):
+                os.write(fd, b"#!/bin/bash -e\n")
+
             os.write(fd, script.replace('\r', '\n').encode('utf-8'))
             os.close(fd)
 
