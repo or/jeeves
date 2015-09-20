@@ -314,7 +314,5 @@ class Job(models.Model):
         if not last_job:
             return None
 
-        previous_duration = get_total_number_of_seconds(
+        return get_total_number_of_seconds(
             last_job.end_time - last_job.start_time)
-
-        return previous_duration
