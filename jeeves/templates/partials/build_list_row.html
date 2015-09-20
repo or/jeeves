@@ -14,8 +14,10 @@
     {% elif build.status == 'finished' %}
       {% if build.result == "success" %}
       <span class="label label-success full-width">success</span>
-      {% else %}
+      {% elif build.result == "failure" %}
       <span class="label label-danger full-width">failure</span>
+      {% else %}
+      <span class="label label-danger full-width">error</span>
       {% endif %}
     {% endif %}
   </td>

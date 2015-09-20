@@ -1,7 +1,9 @@
 import os
 import stat
 import subprocess
+import sys
 import tempfile
+import traceback
 from io import StringIO
 
 from celery import shared_task
@@ -49,6 +51,45 @@ def copy_and_schedule_new_build(build, user=None):
     return new_build
 
 
+def start_job(build, job_description):
+    job = Job(build=build, name=job_description.name)
+    job.status = Job.Status.RUNNING
+    job.log_file.save('build-{:05d}-{:05d}-{}.log'
+                      .format(build.project.id,
+                              build.build_id,
+                              job_description.name),
+                      File(StringIO()))
+    job.save()
+
+    job_started.send('core', job=job)
+
+    return job
+
+
+def finish_job(job, result, result_details=None):
+    job.status = Job.Status.FINISHED
+    job.result = result
+    job.result_details = result_details
+    job.end_time = timezone.now()
+    job.save()
+
+    job_finished.send('core', job=job)
+
+
+def finish_build(build, result, result_details=None):
+    build.status = Build.Status.FINISHED
+    build.result = result
+    build.result_details = result_details
+    build.end_time = timezone.now()
+
+    for job in build.job_set.filter(status=Job.Status.RUNNING):
+        finish_job(job, Job.Result.ERROR, "build error")
+
+    build.save()
+
+    build_finished.send('core', build=build)
+
+
 @shared_task
 def start_build(build_pk):
     build = Build.objects.get(pk=build_pk)
@@ -56,18 +97,10 @@ def start_build(build_pk):
         # if this build is not scheduled anymore, then ignore this task
         return
 
-    script_context = dict(
-        branch=build.branch,
-        commit=build.commit,
-        metadata=build.metadata,
-        build_id=build.id,
-        build_url=build.get_external_url()
-    )
-
     if build.project.blocking_key_template:
         build.blocking_key = \
             Template(build.project.blocking_key_template) \
-            .render(**script_context)
+            .render(**build.get_script_context())
         blocking_build = Build.objects.filter(
             project=build.project,
             blocking_key=build.blocking_key,
@@ -91,6 +124,16 @@ def start_build(build_pk):
         build.save()
         return
 
+    try:
+        run_build(build)
+    except Exception:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        exception_data = traceback.format_exception(
+            exc_type, exc_value, exc_traceback)
+        finish_build(build, Build.Result.ERROR, ''.join(exception_data))
+
+
+def run_build(build):
     build.status = Build.Status.RUNNING
     build.start_time = timezone.now()
     build.save()
@@ -121,15 +164,7 @@ def start_build(build_pk):
                 jobs_left_to_do.append(job_description)
                 continue
 
-            job = Job(build=build, name=job_description.name)
-            job.status = Job.Status.RUNNING
-            job.log_file.save('build-{:05d}-{:05d}-{}.log'
-                              .format(build.project.id,
-                                      build.build_id,
-                                      job_description.name),
-                              File(StringIO()))
-            job.save()
-            job_started.send('core', job=job)
+            job = start_job(build, job_description)
 
             failed_dependencies = []
             unknown_dependencies = []
@@ -147,10 +182,6 @@ def start_build(build_pk):
                         failed_dependencies.append(dependency)
 
             if failed_dependencies or unknown_dependencies:
-                job.status = Job.Status.FINISHED
-                job.end_time = timezone.now()
-                job.result = Job.Result.FAILURE
-
                 all_passed = False
 
                 info = []
@@ -162,17 +193,14 @@ def start_build(build_pk):
                     info.append(
                         'unknown: ' + ', '.join(unknown_dependencies))
 
-                job.result_details = '; '.join(info)
-                job.save()
-
-                job_finished.send('core', job=job)
+                finish_job(job, Job.Result.FAILURE, '; '.join(info))
 
                 result_map[job_description.name.lower()] = job
                 continue
 
             (fd, file_path) = tempfile.mkstemp(suffix='.sh', prefix='tmp')
             script = job_description.script
-            script = Template(script).render(**script_context)
+            script = Template(script).render(**build.get_script_context())
             if not script.startswith('#!/'):
                 os.write(fd, b"#!/bin/bash -e\n")
 
@@ -201,19 +229,13 @@ def start_build(build_pk):
 
             out.close()
 
-            job.status = Job.Status.FINISHED
-            job.end_time = timezone.now()
-
             if not result:
-                job.result = Job.Result.SUCCESS
+                job_result = Job.Result.SUCCESS
             else:
-                job.result = Job.Result.FAILURE
+                job_result = Job.Result.FAILURE
                 all_passed = False
 
-            job.result_details = job.get_duration()
-
-            job.save()
-            job_finished.send('core', job=job)
+            finish_job(job, job_result, job.get_duration())
 
             result_map[job_description.name.lower()] = job
 
@@ -226,12 +248,8 @@ def start_build(build_pk):
         jobs_to_do = jobs_left_to_do
 
     if all_passed:
-        build.result = Build.Result.SUCCESS
+        result = Build.Result.SUCCESS
     else:
-        build.result = Build.Result.FAILURE
+        result = Build.Result.FAILURE
 
-    build.status = Build.Status.FINISHED
-    build.end_time = timezone.now()
-    build.save()
-
-    build_finished.send('core', build=build)
+    finish_build(build, result)

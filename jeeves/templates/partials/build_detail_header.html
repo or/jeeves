@@ -12,9 +12,14 @@
     <div role="alert" class="alert alert-success">
       <strong>Success!</strong> Very good, sir.
     </div>
-    {% else %}
+    {% elif build.result == "failure" %}
     <div role="alert" class="alert alert-danger">
       <strong>Failure!</strong> I'm sorry to hear that, sir.
+    </div>
+    {% else %}
+    <div role="alert" class="alert alert-danger">
+      <strong>Error!</strong> I'm sorry, sir.
+      <pre>{{ build.result_details }}</pre>
     </div>
     {% endif %}
   {% endif %}

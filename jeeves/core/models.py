@@ -72,6 +72,7 @@ class Build(models.Model):
     class Result:
         SUCCESS = "success"
         FAILURE = "failure"
+        ERROR = "error"
 
     class Status:
         SCHEDULED = "scheduled"
@@ -91,6 +92,7 @@ class Build(models.Model):
     RESULT_CHOICES = [
         (Result.SUCCESS, Result.SUCCESS),
         (Result.FAILURE, Result.FAILURE),
+        (Result.ERROR, Result.ERROR),
     ]
 
     project = models.ForeignKey(Project)
@@ -110,6 +112,7 @@ class Build(models.Model):
     blocked_by = models.ForeignKey('Build', null=True, blank=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
                               null=True, blank=True)
+    result_details = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = ('project', 'build_id')
@@ -236,6 +239,15 @@ class Build(models.Model):
 
         return '\n'.join(data)
 
+    def get_script_context(self):
+        return dict(
+            branch=self.branch,
+            commit=self.commit,
+            metadata=self.metadata,
+            build_id=self.id,
+            build_url=self.get_external_url(),
+        )
+
 
 class Job(models.Model):
     class Status:
@@ -245,6 +257,7 @@ class Job(models.Model):
     class Result:
         SUCCESS = "success"
         FAILURE = "failure"
+        ERROR = "failure"
 
     STATUS_CHOICES = [
         (Status.RUNNING, Status.RUNNING),
@@ -254,6 +267,7 @@ class Job(models.Model):
     RESULT_CHOICES = [
         (Result.SUCCESS, Result.SUCCESS),
         (Result.FAILURE, Result.FAILURE),
+        (Result.ERROR, Result.ERROR),
     ]
 
     build = models.ForeignKey(Build)
@@ -264,7 +278,7 @@ class Job(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
                               null=True, blank=True)
-    result_details = models.CharField(max_length=1024, null=True, blank=True)
+    result_details = models.TextField(null=True, blank=True)
     log_file = models.FileField(
         storage=FileSystemStorage(location="logs"), null=True, blank=True)
 
