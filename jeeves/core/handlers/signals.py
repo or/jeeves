@@ -27,20 +27,20 @@ def handle_build_saved(sender, instance, *args, **kwargs):
 
 @receiver(build_started, sender='core')
 def handle_build_started(sender, build, *args, **kwargs):
-    notify(build, message="build started")
+    notify(build, message="build #{} started".format(build.build_id))
 
 
 @receiver(build_finished, sender='core')
 def handle_build_finished(sender, build, *args, **kwargs):
-    notify(build, message="build finished")
+    notify(build, message="build #{} finished".format(build.build_id))
 
 
 @receiver(job_started, sender='core')
 def handle_job_started(sender, job, *args, **kwargs):
-    notify(job.build, message="job started")
+    notify(job.build, message="job '{}' started".format(job.name))
 
 
 @receiver(job_finished, sender='core')
 def handle_job_finished(sender, job, *args, **kwargs):
-    notify(job.build, message="job finished")
+    notify(job.build, message="job '{}' finished".format(job.name))
     report_status_for_job(job)
