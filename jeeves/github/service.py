@@ -85,6 +85,6 @@ def report_status_for_job(job):
     commit.create_status(
         status,
         target_url=job.build.get_external_url(),
-        description=job.result_details,
+        description=job.result_details or '',
         context='Jeeves {}.{}'.format(job.build.project.slug, job.name)
     )

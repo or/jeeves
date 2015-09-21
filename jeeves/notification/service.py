@@ -29,5 +29,3 @@ def notify_flowdock(token, channel, build, message):
     if not notification_metadata.data:
         notification_metadata.data = msg
         notification_metadata.save()
-
-

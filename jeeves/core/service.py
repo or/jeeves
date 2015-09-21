@@ -6,8 +6,8 @@ import tempfile
 import traceback
 from io import StringIO
 
+import jinja2
 from celery import shared_task
-from jinja2 import Template
 
 from django.core.files import File
 from django.utils import timezone
@@ -15,6 +15,11 @@ from django.utils import timezone
 from jeeves.core.models import Build, Job
 from jeeves.core.signals import (build_started, build_finished,
                                  job_started, job_finished)
+
+
+class SilentUndefined(jinja2.Undefined):
+    def _fail_with_undefined_error(self, *args, **kwargs):
+        return None
 
 
 def schedule_build(build):
@@ -99,8 +104,9 @@ def start_build(build_pk):
 
     if build.project.blocking_key_template:
         build.blocking_key = \
-            Template(build.project.blocking_key_template) \
-            .render(**build.get_script_context())
+            jinja2.Template(build.project.blocking_key_template,
+                            undefined=SilentUndefined) \
+            .render(build.get_script_context())
         blocking_build = Build.objects.filter(
             project=build.project,
             blocking_key=build.blocking_key,
@@ -200,7 +206,8 @@ def run_build(build):
 
             (fd, file_path) = tempfile.mkstemp(suffix='.sh', prefix='tmp')
             script = job_description.script
-            script = Template(script).render(**build.get_script_context())
+            script = jinja2.Template(script, undefined=SilentUndefined) \
+                .render(build.get_script_context())
             if not script.startswith('#!/'):
                 os.write(fd, b"#!/bin/bash -e\n")
 

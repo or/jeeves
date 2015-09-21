@@ -240,13 +240,19 @@ class Build(models.Model):
         return '\n'.join(data)
 
     def get_script_context(self):
-        return dict(
+        context = dict(
             branch=self.branch,
             commit=self.commit,
             metadata=self.metadata,
             build_id=self.id,
             build_url=self.get_external_url(),
         )
+
+        metadata = self.notificationmetadata_set.filter(type='flowdock').first()
+        if metadata and metadata.data:
+            context['flowdock'] = metadata.data
+
+        return context
 
 
 class Job(models.Model):
