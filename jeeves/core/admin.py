@@ -18,7 +18,8 @@ class JobDescriptionInlineFormset(forms.models.BaseInlineFormSet):
         for form in self.forms:
             name = form.cleaned_data['name']
             if name in job_names:
-                raise forms.ValidationError("job names must be unique: " + name)
+                raise forms.ValidationError(
+                    "job names must be unique: " + name)
 
             job_names.add(name)
 
@@ -28,7 +29,8 @@ class JobDescriptionInlineFormset(forms.models.BaseInlineFormSet):
             dependencies = [x for x in dependencies if x]
             for dependency in dependencies:
                 if dependency not in job_names:
-                    raise forms.ValidationError("unknown job dependency: " + dependency)
+                    raise forms.ValidationError(
+                        "unknown job dependency: " + dependency)
 
             name = form.cleaned_data['name']
             dependency_tree[name] = dependencies
@@ -38,7 +40,8 @@ class JobDescriptionInlineFormset(forms.models.BaseInlineFormSet):
                 return path + [job]
 
             for dependency in dependency_tree[job]:
-                cycle = find_circular_dependency(dependency_tree, dependency, path + [job])
+                cycle = find_circular_dependency(
+                    dependency_tree, dependency, path + [job])
                 if cycle:
                     return cycle
 
@@ -47,7 +50,8 @@ class JobDescriptionInlineFormset(forms.models.BaseInlineFormSet):
         for job in dependency_tree:
             cycle = find_circular_dependency(dependency_tree, job, [])
             if cycle:
-                raise forms.ValidationError("circular dependency: " + ' -> '.join(cycle))
+                raise forms.ValidationError(
+                    "circular dependency: " + ' -> '.join(cycle))
 
 
 class JobDescriptionForm(forms.ModelForm):

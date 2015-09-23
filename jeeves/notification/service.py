@@ -17,21 +17,58 @@ class Event:
 
 
 EMOJI_THEMES = {
-    'religion': {'start': 'pray', 'success': 'angel', 'failure': 'japanese_ogre'},
-    'science': {'start': 'rocket', 'success': 'fireworks', 'failure': 'boom'},
-    'doom': {'start': 'suspect', 'success': 'godmode', 'failure': 'feelsgood'},
-    'meme': {'start': 'octocat', 'success': 'shipit', 'failure': 'trollface'},
-    'moon': {'start': 'first_quarter_moon', 'success': 'full_moon', 'failure': 'new_moon'},
-    'cats': {'start': 'smirk_cat', 'success': 'heart_eyes_cat', 'failure': 'crying_cat_face'},
-    'monkey': {'start': 'see_no_evil', 'success': 'hear_no_evil', 'failure': 'speak_no_evil'},
-    'hands': {'start': 'wave', 'success': 'thumbsup', 'failure': 'thumbsdown'},
-    'bank': {'start': 'bar_chart', 'success': 'chart_with_upwards_trend', 'failure': 'chart_with_downwards_trend'},
-    'cars': {'start': 'vertical_traffic_light', 'success': 'blue_car', 'failure': 'fire_engine'},
-    'race': {'start': 'traffic_light', 'success': 'checkered_flag', 'failure': 'flags'},
-    'smiley1': {'start': 'open_mouth', 'success': 'smiley', 'failure': 'angry'},
-    'smiley2': {'start': 'relaxed', 'success': 'sunglasses', 'failure': 'flushed'},
-    'smiley3': {'start': 'no_mouth', 'success': 'relieved', 'failure': 'anguished'},
-    'hearts': {'start': 'yellow_heart', 'success': 'green_heart', 'failure': 'broken_heart'},
+    'religion': {
+        'start': 'pray', 'success': 'angel', 'failure': 'japanese_ogre'
+    },
+    'science': {
+        'start': 'rocket', 'success': 'fireworks', 'failure': 'boom'
+    },
+    'doom': {
+        'start': 'suspect', 'success': 'godmode', 'failure': 'feelsgood'
+    },
+    'meme': {
+        'start': 'octocat', 'success': 'shipit', 'failure': 'trollface'
+    },
+    'moon': {
+        'start': 'first_quarter_moon', 'success': 'full_moon',
+        'failure': 'new_moon'
+    },
+    'cats': {
+        'start': 'smirk_cat', 'success': 'heart_eyes_cat',
+        'failure': 'crying_cat_face'
+    },
+    'monkey': {
+        'start': 'see_no_evil', 'success': 'hear_no_evil',
+        'failure': 'speak_no_evil'
+    },
+    'hands': {
+        'start': 'wave', 'success': 'thumbsup', 'failure': 'thumbsdown'
+    },
+    'bank': {
+        'start': 'bar_chart', 'success': 'chart_with_upwards_trend',
+        'failure': 'chart_with_downwards_trend'
+    },
+    'cars': {
+        'start': 'vertical_traffic_light', 'success': 'blue_car',
+        'failure': 'fire_engine'
+    },
+    'race': {
+        'start': 'traffic_light', 'success': 'checkered_flag',
+        'failure': 'flags'
+    },
+    'smiley1': {
+        'start': 'open_mouth', 'success': 'smiley', 'failure': 'angry'
+    },
+    'smiley2': {
+        'start': 'relaxed', 'success': 'sunglasses', 'failure': 'flushed'
+    },
+    'smiley3': {
+        'start': 'no_mouth', 'success': 'relieved', 'failure': 'anguished'
+    },
+    'hearts': {
+        'start': 'yellow_heart', 'success': 'green_heart',
+        'failure': 'broken_heart'
+    },
 }
 
 
@@ -63,11 +100,18 @@ def make_flowdock_message(event, build=None, job=None):
         build = job.build
 
     message_map = {
-        Event.BUILD_STARTED: "{{ theme.start }} {{ build_url }} {{ branch }}",
+        Event.BUILD_STARTED:
+            "{{ theme.start }} {{ build_url }} {{ branch }}",
+
         Event.BUILD_FINISHED: {
-            Build.Result.SUCCESS: "{{ theme.success }} {{ build_url }} {{ branch }}",
-            Build.Result.FAILURE: "{{ theme.failure }} {{ build_url }} {{ build_result_details }}",
-            Build.Result.ERROR: "{{ theme.failure }} {{ build_url }} {{ branch }}",
+            Build.Result.SUCCESS:
+                "{{ theme.success }} {{ build_url }} {{ branch }}",
+            Build.Result.FAILURE: (
+                "{{ theme.failure }} {{ build_url }} {{ branch }} "
+                "{{ build_result_details if build_result_details else '' }}"
+            ),
+            Build.Result.ERROR:
+            "{{ theme.failure }} {{ build_url }} {{ branch }}",
         }
     }
     tag_map = {
@@ -93,7 +137,8 @@ def make_flowdock_message(event, build=None, job=None):
         tags = tag_map.get(event, None)
 
     notification_metadata, unused_created = \
-        NotificationMetadata.objects.get_or_create(build=build, defaults={'data': {}})
+        NotificationMetadata.objects.get_or_create(
+            build=build, defaults={'data': {}})
 
     if 'theme' in notification_metadata.data:
         context = build.get_script_context()
@@ -113,7 +158,8 @@ def notify_flowdock(token, channel, event, build=None, job=None):
         build = job.build
 
     notification_metadata, unused_created = \
-        NotificationMetadata.objects.get_or_create(build=build, defaults={'data': {}})
+        NotificationMetadata.objects.get_or_create(
+            build=build, defaults={'data': {}})
 
     if not notification_metadata.data:
         notification_metadata.data = {}
