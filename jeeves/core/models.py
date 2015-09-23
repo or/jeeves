@@ -246,11 +246,13 @@ class Build(models.Model):
             metadata=self.metadata,
             build_id=self.id,
             build_url=self.get_external_url(),
+            build_status=self.status,
+            build_result=self.result,
+            build_result_details=self.result_details,
         )
 
-        metadata = self.notificationmetadata_set.filter(type='flowdock').first()
-        if metadata and metadata.data:
-            context['flowdock'] = metadata.data
+        if hasattr(self, 'notificationmetadata'):
+            context['notification'] = self.notificationmetadata.data
 
         return context
 

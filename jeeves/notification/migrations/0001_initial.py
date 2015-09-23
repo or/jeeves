@@ -8,22 +8,21 @@ import jsonfield.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0016_auto_20150916_2234'),
+        ('core', '0018_auto_20150920_2059'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='NotificationMetadata',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('build', models.OneToOneField(primary_key=True, to='core.Build', serialize=False)),
                 ('data', jsonfield.fields.JSONField()),
-                ('build', models.ForeignKey(to='core.Build')),
             ],
         ),
         migrations.CreateModel(
             name='NotificationTarget',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('type', models.CharField(max_length=10, choices=[('flowdock', 'flowdock')])),
                 ('token', models.CharField(max_length=128)),
                 ('channel', models.CharField(max_length=256)),

@@ -15,11 +15,7 @@ from django.utils import timezone
 from jeeves.core.models import Build, Job
 from jeeves.core.signals import (build_started, build_finished,
                                  job_started, job_finished)
-
-
-class SilentUndefined(jinja2.Undefined):
-    def _fail_with_undefined_error(self, *args, **kwargs):
-        return None
+from jeeves.util import SilentUndefined
 
 
 def schedule_build(build):

@@ -20,10 +20,5 @@ class NotificationTarget(models.Model):
 
 
 class NotificationMetadata(models.Model):
-    build = models.ForeignKey(Build)
-    type = models.CharField(max_length=10,
-                            choices=NotificationTarget.TYPE_CHOICES)
+    build = models.OneToOneField(Build, primary_key=True)
     data = jsonfield.JSONField()
-
-    class Meta:
-        unique_together = ('build', 'type')
