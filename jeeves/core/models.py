@@ -1,6 +1,7 @@
 import jsonfield
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -27,6 +28,16 @@ def get_elapsed_time(from_time, to_time):
         total = '0 secs'
 
     return total
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+
+    github_account = models.CharField(max_length=128, null=True, blank=True)
+    flowdock_account = models.CharField(max_length=128, null=True, blank=True)
+
+    def __str__(self):
+        return "{}'s profile".format(self.user)
 
 
 class Project(models.Model):

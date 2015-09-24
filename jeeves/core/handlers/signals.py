@@ -1,7 +1,8 @@
+from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from jeeves.core.models import Build
+from jeeves.core.models import Build, UserProfile
 from jeeves.core.routers import send_build_change
 from jeeves.core.service import schedule_build
 
@@ -19,3 +20,9 @@ def handle_build_saved(sender, instance, *args, **kwargs):
 
         for blocked_build in blocked_builds:
             schedule_build(blocked_build)
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
