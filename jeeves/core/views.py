@@ -38,7 +38,7 @@ class BuildListView(ListView):
         context = super(BuildListView, self).get_context_data(*args, **kwargs)
         context['project'] = self.project
         context['all_builds'] = mark_safe(
-            json.dumps(map(build_info, Build.objects.order_by('-build_id'))))
+            json.dumps(list(map(build_info, Build.objects.order_by('-build_id')))))
         return context
 
 
