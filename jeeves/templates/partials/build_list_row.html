@@ -50,7 +50,13 @@
     </a>
   </td>
   <td>
+    {% if build.source %}
+      re-build
+      <a href="{{ build.source.source.get_external_url }}">#{{ build.source.source.build_id }}</a>
+      by <span>{{ build.source.user.username }}</span>
+    {% else %}
       {{ build.reason|default:'' }}
+    {% endif %}
   </td>
   <td style="width:7%">
    {% include "partials/build_schedule_copy_link.html" with build=build %}

@@ -12,7 +12,7 @@ from celery import shared_task
 from django.core.files import File
 from django.utils import timezone
 
-from jeeves.core.models import Build, Job
+from jeeves.core.models import Build, BuildSource, Job
 from jeeves.core.signals import (build_started, build_finished,
                                  job_started, job_finished)
 from jeeves.util import SilentUndefined
@@ -48,6 +48,8 @@ def copy_and_schedule_new_build(build, user=None):
     new_build = schedule_new_build(
         build.project, repository=build.repository, branch=build.branch,
         metadata=build.metadata, reason=reason, commit=build.commit)
+
+    BuildSource.objects.create(build=new_build, source=build, user=user)
 
     return new_build
 

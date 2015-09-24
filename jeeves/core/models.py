@@ -268,6 +268,12 @@ class Build(models.Model):
         return context
 
 
+class BuildSource(models.Model):
+    build = models.OneToOneField(Build, primary_key=True, related_name="source")
+    source = models.ForeignKey(Build, related_name="copies")
+    user = models.ForeignKey(User)
+
+
 class Job(models.Model):
     class Status:
         RUNNING = "running"
