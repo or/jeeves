@@ -64,7 +64,7 @@ def start_job(build, job_description):
                       File(StringIO()))
     job.save()
 
-    job_started.send('core', job=job)
+    job_started.send_robust('core', job=job)
 
     return job
 
@@ -76,7 +76,7 @@ def finish_job(job, result, result_details=None):
     job.end_time = timezone.now()
     job.save()
 
-    job_finished.send('core', job=job)
+    job_finished.send_robust('core', job=job)
 
 
 def finish_build(build, result, result_details=None):
@@ -90,7 +90,7 @@ def finish_build(build, result, result_details=None):
 
     build.save()
 
-    build_finished.send('core', build=build)
+    build_finished.send_robust('core', build=build)
 
 
 @shared_task
@@ -142,7 +142,7 @@ def run_build(build):
     build.start_time = timezone.now()
     build.save()
 
-    build_started.send('core', build=build)
+    build_started.send_robust('core', build=build)
 
     known_jobs = set()
     dependencies = {}
