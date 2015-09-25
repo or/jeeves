@@ -10,9 +10,13 @@ time.sleep(2)
 print("{} did some more things...".format(datetime.now()))
 time.sleep(3)
 
-for i in range(150):
+sys.stderr.write("some error!\n")
+
+for i in range(15):
     print("line {}".format(i))
     sys.stdout.flush()
     time.sleep(0.1)
+
+sys.stderr.write("another error!\n")
 
 print("all done!")

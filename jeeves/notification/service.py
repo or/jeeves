@@ -107,11 +107,11 @@ def make_flowdock_message(event, build=None, job=None):
             Build.Result.SUCCESS:
                 "{{ theme.success }} {{ build_url }} {{ branch }}",
             Build.Result.FAILURE: (
-                "{{ theme.failure }} {{ build_url }} {{ branch }} "
-                "{{ build_result_details if build_result_details else '' }}"
+                "{{ theme.failure }} {{ build_url }} {{ branch }}"
+                "{{ errors }}"
             ),
             Build.Result.ERROR:
-            "{{ theme.failure }} {{ build_url }} {{ branch }}",
+            "{{ theme.failure }} {{ build_url }} {{ branch }}{{ errors }}",
         }
     }
     tag_map = {
@@ -140,12 +140,23 @@ def make_flowdock_message(event, build=None, job=None):
         NotificationMetadata.objects.get_or_create(
             build=build, defaults={'data': {}})
 
+    context = build.get_script_context()
     if 'theme' in notification_metadata.data:
-        context = build.get_script_context()
         context['theme'] = {
             k: get_emoji(notification_metadata.data['theme'], k)
             for k in ['start', 'success', 'failure']
         }
+
+    context['errors'] = ''
+    errors = build.get_job_result_details()
+    if build.result_details:
+        errors = [('error', build.result_details)] + errors
+
+    if errors:
+        context['errors'] = \
+            '\n\n' + \
+            '\n\n'.join('* {}:\n\n      {}'.format(x[0], x[1].replace('\n', '\n      '))
+                        for x in errors)
 
     message = jinja2.Template(template, undefined=SilentUndefined) \
         .render(context)

@@ -15,11 +15,16 @@
     {% elif build.result == "failure" %}
     <div role="alert" class="alert alert-danger">
       <strong>Failure!</strong> I'm sorry to hear that, sir.
+      {% if build.result_details %}
+      <pre>{{ build.result_details }}</pre>
+      {% endif %}
     </div>
     {% else %}
     <div role="alert" class="alert alert-danger">
       <strong>Error!</strong> I'm sorry, sir.
+      {% if build.result_details %}
       <pre>{{ build.result_details }}</pre>
+      {% endif %}
     </div>
     {% endif %}
   {% endif %}

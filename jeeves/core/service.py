@@ -1,4 +1,5 @@
 import os
+import select
 import stat
 import subprocess
 import sys
@@ -134,6 +135,7 @@ def start_build(build_pk):
         exc_type, exc_value, exc_traceback = sys.exc_info()
         exception_data = traceback.format_exception(
             exc_type, exc_value, exc_traceback)
+        # new lines are included in each element
         finish_build(build, Build.Result.ERROR, ''.join(exception_data))
 
 
@@ -223,24 +225,34 @@ def run_build(build):
                     env.pop(env_entry)
 
             out = open(job.log_file.path, 'w')
-            try:
-                result = subprocess.check_call(
-                    [file_path],
-                    stdout=out,
-                    stderr=out,
-                    env=env)
-            except subprocess.CalledProcessError as e:
-                result = e.returncode
+
+            p = subprocess.Popen(
+                [file_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=env)
+
+            stderr = ''
+            running = True
+            while running:
+                for fd in select.select([p.stdout, p.stderr], [], [])[0]:
+                    output = fd.readline()
+                    if output == b"":
+                        running = False
+                    else:
+                        out.write(output)
+                        if fd == p.stderr:
+                            stderr += output.decode('utf-8')
 
             out.close()
+            p.wait()
+            result = p.returncode
 
             if not result:
-                job_result = Job.Result.SUCCESS
+                finish_job(job, Job.Result.SUCCESS, '')
             else:
-                job_result = Job.Result.FAILURE
+                finish_job(job, Job.Result.FAILURE, stderr)
                 all_passed = False
-
-            finish_job(job, job_result, job.get_duration())
 
             result_map[job_description.name.lower()] = job
 

@@ -267,6 +267,14 @@ class Build(models.Model):
 
         return context
 
+    def get_job_result_details(self):
+        details = []
+        for job in self.job_set.order_by('id'):
+            if job.result_details:
+                details.append((job.name, job.result_details))
+
+        return details
+
 
 class BuildSource(models.Model):
     build = models.OneToOneField(Build, primary_key=True, related_name="source")
