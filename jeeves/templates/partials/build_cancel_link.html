@@ -1,6 +1,6 @@
 {% if build.is_cancellable %}
 <a onclick="do_action('{% url 'build-cancel' project_slug=build.project.slug build_id=build.build_id %}'); return false;"
-   role="button" class="pull-right btn btn-default" style="margin-right:0.3em;"
+   role="button" class="btn btn-default" style="margin-right:0.3em;"
    data-toggle="tooltip" title="Cancel this build">
   <i class="glyphicon glyphicon-remove" style="color:red;"></i>
 </a>

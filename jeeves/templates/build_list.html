@@ -3,10 +3,10 @@
 
 {% block content %}
 <div class="container-fluid" style="margin:0.2em">
-  <h2 class="page-header">{{ project.name }}
+  <h2 class="page-header" style="margin-top: 1em;">{{ project.name }}
       {% if perms.can_edit_project %}
         <a href="{% url 'admin:core_project_change' project.id %}"
-           role="button" class="pull-right btn btn-default">
+           role="button" class="btn btn-default">
           <span class="glyphicon glyphicon-edit"></span>
         </a>
       {% endif %}

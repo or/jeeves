@@ -1,11 +1,9 @@
 {% load gravatar %}
 <div id="build-{{ build.id }}">
-  <h1>Build #{{ build.build_id }} ({{ build.status }})
-    <span class="pull-right">
-    {% include "partials/build_schedule_copy_link.html" with build=build %}
+  <h3 class="page-header" style="margin-top: 1em;">Build #{{ build.build_id }} ({{ build.status }})
     {% include "partials/build_cancel_link.html" with build=build %}
-    </span>
-  </h1>
+    {% include "partials/build_schedule_copy_link.html" with build=build %}
+  </h3>
 
   {% if build.result %}
     {% if build.result == "success" %}
