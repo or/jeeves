@@ -1,0 +1,25 @@
+<tr id="job-{{ job.id }}" class="job-row h4">
+  <td class="text-left" style="width:15%;">
+    {{ job.name }}
+  </td>
+  <td class="text-center" style="width:5%">
+    {% if job.status == 'running' %}
+    <span class="label label-warning full-width">running</span>
+    {% elif job.status == 'finished' %}
+      {% if job.result == "success" %}
+      <span class="label label-success full-width">success</span>
+      {% elif job.result == "failure" %}
+      <span class="label label-danger full-width">failure</span>
+      {% else %}
+      <span class="label label-danger full-width">error</span>
+      {% endif %}
+    {% endif %}
+  </td>
+  <td style="width:50%">
+    {% if job.status == 'running' %}
+      {% include "partials/job_progress.html" with job=job %}
+    {% elif job.status == 'finished' %}
+      ran for {{ job.get_duration|default:'' }}
+    {% endif %}
+  </td>
+</tr>

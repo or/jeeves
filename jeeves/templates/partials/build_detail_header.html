@@ -29,61 +29,65 @@
     {% endif %}
   {% endif %}
 
-  <div class="row container">
-    <div class="panel panel-default col-sm-8">
-      <div class="panel-body">
-        {% if build.status == 'running' %}
-          {% include "partials/build_progress.html" with build=build %}
-        {% endif %}
-        {% if build.get_commit %}
-          <div class="commit-info pull-left">
-            {% with commit=build.get_commit %}
-              <pre class="commit-message">{{ commit.message }}</pre>
-              <span class="commit-author">
-                <img src="{{ commit.author.email|gravatar }}" style="width:32px"/>
-                <span>{{ commit.author.name }} &lt;{{ commit.author.email }}&gt;</span>
-                {% if commit.author.username %}
-                  <a href="https://github.com/{{ commit.author.username }}" target="_blank">
-                    <span class="fa fa-github" style="font-size:1.1em;"></span>
-                    {{ commit.author.username }}
-                  </a>
-                {% endif %}
+  <div class="row container" style="width: 100%; padding: 0; margin: 0;">
+    <div class="col-lg-6" style="padding-left: 0;">
+      <div class="panel panel-default" style="padding: 0;">
+        <div class="panel-heading">
+        Details
+        </div>
+        <div class="panel-body">
+          {% if build.status == 'running' %}
+            {% include "partials/build_progress.html" with build=build %}
+          {% endif %}
+          {% if build.get_commit %}
+            <div class="commit-info pull-left">
+              {% with commit=build.get_commit %}
+                <pre class="commit-message">{{ commit.message }}</pre>
+                <span class="commit-author">
+                  <img src="{{ commit.author.email|gravatar }}" style="width:32px"/>
+                  <span>{{ commit.author.name }} &lt;{{ commit.author.email }}&gt;</span>
+                  {% if commit.author.username %}
+                    <a href="https://github.com/{{ commit.author.username }}" target="_blank">
+                      <span class="fa fa-github" style="font-size:1.1em;"></span>
+                      {{ commit.author.username }}
+                    </a>
+                  {% endif %}
+                </span>
+              {% endwith %}
+            </div>
+          {% endif %}
+          <ul class="list-group pull-right" style="margin-bottom:0">
+            {% if build.get_commit_link %}
+            <li class="list-group-item" style="border:0;padding:2px;color:grey;">
+              <a href="{{ build.get_commit_link }}" target="_blank">
+                <span class="fa fa-github" style="font-size:1.1em;"></span> {{ build.commit|slice:":8" }}
+              </a>
+            </li>
+            {% endif %}
+            {% if build.get_branch_link %}
+            <li class="list-group-item" style="border:0;padding:2px;color:grey;">
+              <a href="{{ build.get_branch_link }}" target="_blank">
+                <span class="fa fa-github" style="font-size:1.1em;"></span> {{ build.branch }}
+              </a>
+            </li>
+            {% endif %}
+            <li class="list-group-item" style="border:0;padding:2px;color:grey;"
+                title="{{ build.creation_time|date:"d.m.Y H:i:s" }}">
+              <span class="fa fa-calendar"></span>
+              <span>
+                {% include "partials/build_age.html" with build=build %}
               </span>
-            {% endwith %}
-          </div>
-        {% endif %}
-        <ul class="list-group pull-right" style="margin-bottom:0">
-          {% if build.get_commit_link %}
-          <li class="list-group-item" style="border:0;padding:2px;color:grey;">
-            <a href="{{ build.get_commit_link }}" target="_blank">
-              <span class="fa fa-github" style="font-size:1.1em;"></span> {{ build.commit|slice:":8" }}
-            </a>
-          </li>
-          {% endif %}
-          {% if build.get_branch_link %}
-          <li class="list-group-item" style="border:0;padding:2px;color:grey;">
-            <a href="{{ build.get_branch_link }}" target="_blank">
-              <span class="fa fa-github" style="font-size:1.1em;"></span> {{ build.branch }}
-            </a>
-          </li>
-          {% endif %}
-          <li class="list-group-item" style="border:0;padding:2px;color:grey;"
-              title="{{ build.creation_time|date:"d.m.Y H:i:s" }}">
-            <span class="fa fa-calendar"></span>
-            <span>
-              {% include "partials/build_age.html" with build=build %}
-            </span>
-          </li>
-          {% if build.status == 'finished' %}
-          <li class="list-group-item" style="border:0;padding:2px;color:grey;">
-            <span class="glyphicon glyphicon-time"></span>
-            ran for {{ build.get_duration|default:'' }}
-          </li>
-          {% endif %}
-        </ul>
+            </li>
+            <li class="list-group-item" style="border:0;padding:2px;color:grey;">
+              <span class="glyphicon glyphicon-time"></span>
+              ran for {{ build.get_duration|default:'' }}
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-6" style="padding-right: 0;">
+      {% include "partials/job_list.html" with build=build %}
     </div>
   </div>
 </div>

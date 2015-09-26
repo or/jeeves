@@ -1,0 +1,18 @@
+<div id="jobs-list" class="panel panel-default" style="padding: 0;">
+  <div class="panel-heading">
+  Jobs
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table" style="margin: 0;">
+        <tbody class="job-table">
+  {% for job in build.get_jobs %}
+    {% include "partials/job_list_row.html" with job=job %}
+  {% empty %}
+          <tr><td>No jobs yet.</td></tr>
+  {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

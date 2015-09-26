@@ -63,11 +63,22 @@ swampdragon.ready(function() {
       {id: {{ build.id }}, log_offset: current_log_offset},
       function(context, data) {
         console.log(data);
-        if (data.html != null) {
-          $('#build-' + {{ build.id }}).replaceWith(data.html);
+        var need_update = false;
+        if (data.details_html != null) {
+          $('#build-' + {{ build.id }}).replaceWith(data.details_html);
+          need_update = true;
+        }
+
+        if (data.jobs_html != null) {
+          $('#jobs-list').replaceWith(data.jobs_html);
+          need_update = true;
+        }
+
+        if (need_update) {
           update_progress_bars();
           update_age_displays();
         }
+
         if (data.log_data != null) {
           var log = $('#log');
           log.append(data.log_data);

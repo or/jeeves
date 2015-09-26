@@ -148,7 +148,7 @@ def make_flowdock_message(event, build=None, job=None):
         }
 
     context['errors'] = ''
-    errors = build.get_job_result_details()
+    errors = [(x.name, x.result_details) for x in build.get_jobs() if x.result_details]
     if build.result_details:
         errors = [('error', build.result_details)] + errors
 

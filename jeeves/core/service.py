@@ -224,7 +224,7 @@ def run_build(build):
                 if env_entry in env:
                     env.pop(env_entry)
 
-            out = open(job.log_file.path, 'w')
+            out = open(job.log_file.path, 'wb')
 
             p = subprocess.Popen(
                 [file_path],

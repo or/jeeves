@@ -51,3 +51,11 @@
     margin: 0;
     border-radius: 0;
 }
+
+.job-row {
+    color: grey;
+}
+
+tbody.job-table>tr>td, tbody.job-table>th>td {
+    border: 0;
+}

@@ -29,7 +29,13 @@
     <table class="table table-striped">
       <tbody id="build-table">
       {% for build in object_list %}
-        {% ifchanged %}<tr><td colspan="8" class="h5"><strong>{{ build.creation_time|date:"DATE_FORMAT" }}</strong></td></tr>{% endifchanged %}
+        {% ifchanged %}
+        <tr>
+          <td colspan="8" class="h5">
+            <strong>{{ build.creation_time|date:"DATE_FORMAT" }}</strong>
+          </td>
+        </tr>
+        {% endifchanged %}
         {% include "partials/build_list_row.html" with build=build %}
       {% empty %}
         <tr><td>No builds yet.</td></tr>

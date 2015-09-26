@@ -267,13 +267,8 @@ class Build(models.Model):
 
         return context
 
-    def get_job_result_details(self):
-        details = []
-        for job in self.job_set.order_by('id'):
-            if job.result_details:
-                details.append((job.name, job.result_details))
-
-        return details
+    def get_jobs(self):
+        return self.job_set.order_by('id')
 
 
 class BuildSource(models.Model):

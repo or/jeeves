@@ -28,8 +28,10 @@ class BuildChangesRouter(route_handler.BaseRouter):
         message = {}
         last_timestamp = last_update_time.get(build_pk)
         if not last_timestamp or build.modified_time > last_timestamp:
-            template = get_template("partials/build_detail_header.html")
-            message['html'] = template.render({'build': build})
+            template_details = get_template("partials/build_detail_header.html")
+            message['details_html'] = template_details.render({'build': build})
+            template_jobs = get_template("partials/job_list.html")
+            message['jobs_html'] = template_jobs.render({'build': build})
 
         last_update_time[build_pk] = timezone.now()
 
