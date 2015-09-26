@@ -2,3 +2,8 @@
 /static
 jeeves/settings.py
 /logs
+
+# personal testing files and db
+db.sqlite3
+data.json
+test.py
