@@ -28,7 +28,7 @@
     <script src="{% static "js/JSXTransformer-0.13.3.js" %}"></script>
   </head>
   <body role="document">
-    <nav class="navbar navbar-inverse navbar-static-top" style="border:0;">
+    <nav class="navbar navbar-inverse navbar-static-top" style="border:0; margin: 0;">
       <a href="{% url 'project-list' %}" class="navbar-brand">
         Jeeves
       </a>
@@ -55,6 +55,8 @@
       </ul>
       {% endif %}
     </nav>
+    {% include "partials/messages.html" with messages=messages %}
+
     {% block content %}
     {% endblock %}
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

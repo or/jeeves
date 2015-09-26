@@ -7,9 +7,6 @@
     <li><a href="{% url 'build-list' project_slug=project.slug %}">{{ project.name }}</a></li>
     <li class="active">Build #{{ object.build_id }}</li>
   </ol>
-
-  {% include "partials/messages.html" with messages=messages %}
-
   {% include "partials/build_detail_header.html" with build=object %}
 
   <div class="panel panel-default">
