@@ -3,10 +3,6 @@
 
 {% block content %}
 <div class="container-fluid" style="margin:0.2em">
-  <ol class="breadcrumb">
-    <li><a href="{% url 'build-list' project_slug=project.slug %}">{{ project.name }}</a></li>
-    <li class="active">Build #{{ object.build_id }}</li>
-  </ol>
   {% include "partials/build_detail_header.html" with build=object %}
 
   <div class="panel panel-default">

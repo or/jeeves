@@ -38,6 +38,20 @@
             Projects
           </a>
         </li>
+        {% if project %}
+        <li class="{% active_page request 'build-list' %}">
+          <a href="{% url 'build-list' project_slug=project.slug %}" style="height:4em;">
+            {{ project.name }}
+          </a>
+        </li>
+        {% endif %}
+        {% if build %}
+        <li class="{% active_page request 'build-view' %}">
+          <a href="{% url 'build-view' project_slug=build.project.slug build_id=build.build_id %}" style="height:4em;">
+            #{{ build.build_id }}
+          </a>
+        </li>
+        {% endif %}
       </ul>
       {% if user.is_authenticated %}
       <img class="nav navbar-right" src="{{ user.email|gravatar }}" style="height:4em;margin:0;"/>
