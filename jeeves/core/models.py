@@ -345,7 +345,7 @@ class Job(models.Model):
     def get_estimated_time(self):
         last_job = \
             Job.objects.filter(
-                build=self.build,
+                name=self.name,
                 status=Job.Status.FINISHED,
                 result=Job.Result.SUCCESS,
                 start_time__isnull=False,
