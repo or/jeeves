@@ -30,6 +30,7 @@
 
 {% block js %}
 var current_log_offset = 0;
+var delay = 500;
 
 function scroll_log(delay) {
   if (!$('#enable-auto-scrolling').prop('checked')) {
@@ -37,13 +38,9 @@ function scroll_log(delay) {
   }
 
   var log = $('#log');
-  if (delay === 0) {
+  if (delay == null || delay == 0) {
     log.scrollTop(log.prop('scrollHeight'));
   } else {
-    if (delay == null) {
-      delay = 500;
-    }
-
     log.animate({
       scrollTop: log.prop('scrollHeight')
     }, delay);
