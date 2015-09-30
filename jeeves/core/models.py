@@ -9,12 +9,19 @@ from django.utils import timezone
 
 
 def get_total_number_of_seconds(delta):
-    return 86400 * delta.days + delta.seconds
+    return 86400 * delta.days + delta.seconds + delta.microseconds / 1000000.0
 
 
 def get_elapsed_time(from_time, to_time):
     elapsed_time = to_time - from_time
-    num_secs = get_total_number_of_seconds(elapsed_time)
+    float_num_secs = get_total_number_of_seconds(elapsed_time)
+    if float_num_secs < 1:
+        if float_num_secs < 0.1:
+            return '0.1 secs'
+
+        return '{:.1f} secs'.format(float_num_secs)
+
+    num_secs = int(float_num_secs)
     mins = int(num_secs / 60)
     secs = int(num_secs - mins * 60)
     chunks = []
