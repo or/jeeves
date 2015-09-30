@@ -11,11 +11,9 @@ function update_progress_bars() {
     }
 
     React.render(
-      React.createElement(ProgressBar, {
-        initial_timestamp: pbar.data('initial-timestamp'),
-        initial_elapsed_time: pbar.data('initial-elapsed-time'),
-        estimated_time: pbar.data('estimated-time'),
-      }),
+      <ProgressBar initial_timestamp={pbar.data('initial-timestamp')}
+                   initial_elapsed_time={pbar.data('initial-elapsed-time')}
+                   estimated_time={pbar.data('estimated-time')}/>,
       pbar.get()[0]
     );
   });
@@ -34,10 +32,8 @@ function update_age_displays() {
     }
 
     React.render(
-      React.createElement(AgeDisplay, {
-        initial_timestamp: age_element.data('initial-timestamp'),
-        initial_age: age_element.data('initial-age'),
-      }),
+      <AgeDisplay initial_timestamp={age_element.data('initial-timestamp')}
+                  initial_age={age_element.data('initial-age')}/>,
       age_element.get()[0]
     );
   });
