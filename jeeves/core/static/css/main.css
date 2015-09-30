@@ -49,6 +49,15 @@
     color:grey;
 }
 
+.build-info {
+    vertical-align: top;
+    overflow: hidden;
+}
+
+.build-info {
+    text-overflow: ellipsis;
+}
+
 #log {
     border: 0;
     max-height: 1000px;
