@@ -30,8 +30,13 @@ class BuildChangesRouter(route_handler.BaseRouter):
         if not last_timestamp or build.modified_time > last_timestamp:
             template_details = get_template("partials/build_detail_header.html")
             message['details_html'] = template_details.render({'build': build})
-            template_jobs = get_template("partials/job_list.html")
-            message['jobs_html'] = template_jobs.render({'build': build})
+
+        for job in build.get_jobs():
+            if not last_timestamp or job.modified_time > last_timestamp:
+                # at least one job changed, so update job info
+                template_jobs = get_template("partials/job_list.html")
+                message['jobs_html'] = template_jobs.render({'build': build})
+                break
 
         last_update_time[build_pk] = timezone.now()
 

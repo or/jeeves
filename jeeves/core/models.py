@@ -304,6 +304,7 @@ class Job(models.Model):
                               default=Status.RUNNING, db_index=True)
     start_time = models.DateTimeField(auto_now_add=True, db_index=True)
     end_time = models.DateTimeField(null=True, blank=True)
+    modified_time = models.DateTimeField(auto_now=True, db_index=True)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
                               null=True, blank=True)
     result_details = models.TextField(null=True, blank=True)
