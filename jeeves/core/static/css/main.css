@@ -31,12 +31,18 @@
 }
 
 .commit-info {
-    width: 60%;
+    width: 70%;
 }
 
 .commit-message {
+    width: 100%;
+    font-family: monospace;
     max-height: 10em;
+    height: 6em;
     border: 0;
+    background: #eee;
+    resize: none;
+    outline: none;
 }
 
 .commit-author {

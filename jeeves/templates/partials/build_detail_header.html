@@ -40,7 +40,7 @@
           {% if build.get_commit %}
             <div class="commit-info pull-left">
               {% with commit=build.get_commit %}
-                <pre class="commit-message">{{ commit.message }}</pre>
+                <textarea class="commit-message" readonly="true">{{ commit.message }}</textarea>
                 <span class="commit-author">
                   <img src="{{ commit.author.email|gravatar }}" style="width:32px"/>
                   <span>{{ commit.author.name }} &lt;{{ commit.author.email }}&gt;</span>
@@ -54,7 +54,7 @@
               {% endwith %}
             </div>
           {% endif %}
-          <ul class="list-group pull-right" style="margin-bottom:0">
+          <ul class="list-group pull-right" style="margin-bottom: 0; width: 25%; text-overflow: ellipsis;">
             {% if build.get_commit_link %}
             <li class="list-group-item" style="border:0;padding:2px;color:grey;">
               <a href="{{ build.get_commit_link }}" target="_blank">
