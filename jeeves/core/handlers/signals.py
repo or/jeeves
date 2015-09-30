@@ -2,8 +2,8 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from jeeves.core.models import Build, UserProfile
-from jeeves.core.routers import send_build_change
+from jeeves.core.models import Build, Job, UserProfile
+from jeeves.core.routers import send_build_change, send_job_change
 from jeeves.core.service import schedule_build
 
 
@@ -20,6 +20,12 @@ def handle_build_saved(sender, instance, *args, **kwargs):
 
         for blocked_build in blocked_builds:
             schedule_build(blocked_build)
+
+
+@receiver(post_save, sender=Job)
+def handle_job_saved(sender, instance, *args, **kwargs):
+    job = instance
+    send_job_change(job)
 
 
 @receiver(post_save, sender=User)

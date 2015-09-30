@@ -59,11 +59,13 @@ swampdragon.onChannelMessage(function (channels, message) {
 });
 
 swampdragon.ready(function() {
-  swampdragon.subscribe('build-changes', 'build-change-{{ project.id }}', null);
+  swampdragon.subscribe('build-changes', '{{ project.id }}-build-change', null);
 });
 {% endblock %}
 
 {% block jsx %}
-update_progress_bars();
-update_age_displays();
+$(document).ready(function() {
+  update_progress_bars();
+  update_age_displays();
+});
 {% endblock %}
