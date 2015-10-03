@@ -49,7 +49,7 @@ swampdragon.onChannelMessage(function (channels, message) {
 swampdragon.ready(function() {
   setInterval(function () {
     swampdragon.callRouter('get_latest_log', 'build-changes',
-      {id: {{ build.id }}, log_offsets: log_data.offsets},
+      {id: {{ build.id }}, offsets: log_data.offsets},
       function(context, data) {
         console.log(data);
         log_data.jobs = data.jobs;
