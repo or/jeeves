@@ -234,15 +234,40 @@ def run_build(build):
 
             stderr = ''
             running = True
+            buffers = {p.stdout: '', p.stderr: ''}
+            fds = [p.stdout, p.stderr]
             while running:
-                for fd in select.select([p.stdout, p.stderr], [], [])[0]:
+                for fd in select.select(fds, [], [])[0]:
                     output = fd.readline()
                     if output == b"":
                         running = False
-                    else:
-                        out.write(output)
+                        continue
+
+                    buffers[fd] += output.decode('utf-8')
+                    lines = buffers[fd].split('\n')
+                    for line in lines[:-1]:
+                        line += '\n'
+
                         if fd == p.stderr:
-                            stderr += output.decode('utf-8')
+                            out.write(('__stderr: ' + line).encode('utf-8'))
+                            stderr += line
+                        else:
+                            out.write(line.encode('utf-8'))
+
+                    buffers[fd] = lines[-1]
+
+                out.flush()
+
+            for fd in fds:
+                if not buffers[fd]:
+                    continue
+
+                line = buffers[fd] + '\n'
+                if fd == p.stderr:
+                    out.write(('__stderr: ' + line).encode('utf-8'))
+                    stderr += line
+                else:
+                    out.write(line.encode('utf-8'))
 
             out.close()
             p.wait()

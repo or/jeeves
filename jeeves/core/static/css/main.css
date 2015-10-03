@@ -103,6 +103,14 @@ tbody.job-table>tr>td, tbody.job-table>th>td {
     vertical-align: top;
 }
 
+.log-line-number.stderr {
+    color: #b00;
+}
+
+.log-line-data.stderr {
+    color: #d00;
+}
+
 tr:hover .log-line-number {
     color: #bbb;
     background-color: #222;
@@ -111,6 +119,16 @@ tr:hover .log-line-number {
 tr:hover .log-line-data {
     color: #fff;
     background-color: #222;
+}
+
+tr:hover .log-line-number.stderr {
+    color: #d00;
+    background-color: #422;
+}
+
+tr:hover .log-line-data.stderr {
+    color: #f00;
+    background-color: #422;
 }
 
 .noselect {

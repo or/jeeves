@@ -125,13 +125,18 @@ var AgeDisplay = React.createClass({
 
 var LogLine = React.createClass({
   render() {
+    var extraClassName = '';
+    if (this.props.stderr) {
+      extraClassName += ' stderr';
+    }
+
     return (
       <tr>
-        <td className="log-line-number noselect">
+        <td className={"log-line-number noselect" + extraClassName}>
           {this.props.line_number}
         </td>
-        <td className="log-line-data">
-          <span style={{display: 'block !important'}}>{this.props.data}</span>
+        <td className={"log-line-data" + extraClassName}>
+          {this.props.data}
         </td>
       </tr>
     );
@@ -152,7 +157,13 @@ var Log = React.createClass({
     var i;
     for (i = 0; i < raw_lines.length; ++i) {
       var raw_line = raw_lines[i];
-      lines.push({'number': i + 1, 'data': raw_line});
+      var line = raw_line;
+      var stderr = false;
+      if (line.startsWith('__stderr:')) {
+        line = line.substring('__stderr: '.length);
+        stderr = true;
+      }
+      lines.push({number: i + 1, data: line, stderr: stderr});
     }
 
     var style = this.props.style;
@@ -164,7 +175,7 @@ var Log = React.createClass({
       <div style={style}>
         <table style={{width: '100%'}}>
           {lines.map(function(line) {
-            return <LogLine line_number={line.number} data={line.data}/>
+            return <LogLine line_number={line.number} data={line.data} stderr={line.stderr}/>
           })}
         </table>
       </div>
