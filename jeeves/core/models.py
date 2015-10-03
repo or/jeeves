@@ -1,3 +1,5 @@
+import os
+
 import jsonfield
 
 from django.conf import settings
@@ -324,16 +326,16 @@ class Job(models.Model):
     def __str__(self):
         return '{}.{}'.format(self.build, self.name)
 
-    def get_log(self):
+    def get_log(self, offset=0):
         if not self.log_file:
-            return ''
+            return None
 
         self.log_file.open()
-        self.log_file.seek(0)
+        self.log_file.seek(offset)
         data = self.log_file.read().decode('utf-8')
         self.log_file.close()
 
-        return data
+        return data, os.path.getsize(self.log_file.path)
 
     def get_duration(self):
         if not self.start_time or not self.end_time:

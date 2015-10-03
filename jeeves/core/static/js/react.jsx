@@ -121,3 +121,106 @@ var AgeDisplay = React.createClass({
     );
   }
 });
+
+
+var Log = React.createClass({
+  getInitialState() {
+    return {
+      data: this.props.data,
+    };
+  },
+
+  render() {
+    return (
+      <div style={this.props.style}>
+        <pre className="log-data">{
+          this.state.data
+        }</pre>
+      </div>
+    );
+  }
+});
+
+
+var LogView = React.createClass({
+  getInitialState() {
+    var active_log = null;
+    if (this.props.log_data.jobs.length > 0) {
+      active_log = this.props.log_data.jobs[this.props.log_data.jobs.length - 1];
+    }
+
+    return {
+      log_data: this.props.log_data,
+      active_log: active_log,
+    }
+  },
+
+  setLogData(log_data) {
+    var active_log = this.state.active_log;
+    if (active_log == null && log_data.jobs.length > 0) {
+      active_log = this.props.log_data.jobs[this.props.log_data.jobs.length - 1];
+    }
+
+    this.setState({
+      log_data: log_data,
+      active_log: active_log,
+    });
+  },
+
+  clickJobTab(event) {
+    event.preventDefault();
+    var active_log = $(event.target).data('job');
+    this.setState({
+      log_data: this.props.log_data,
+      active_log: active_log,
+    });
+  },
+
+  render() {
+    return (
+      <div>
+        <nav className="navbar navbar-default" style={{marginBottom: '0'}}>
+          <div className="container-fluid">
+            <div className="navbar-header">
+              <button type="button" className="navbar-toggle collapsed"
+                      data-toggle="collapse" data-target="#log-navbar-collapse"
+                      aria-expanded="false">
+                <span className="fa fa-bars"></span>
+              </button>
+              <span className="navbar-brand">Logs</span>
+            </div>
+
+            <div className="collapse navbar-collapse" id="log-navbar-collapse"
+                 style={{marginTop: '10px', overflowY: 'hidden'}}>
+              <ul className="navbar-nav nav nav-tabs"
+                  style={{border: '0', marginLeft: '1em', marginBottom: '0'}}>
+                {this.state.log_data.jobs.map(function(name) {
+                  if (this.state.active_log == name) {
+                    var className="active";
+                  }
+                  return (
+                    <li key={name}
+                        role="presentation" className={className}>
+                      <a href="#" onClick={this.clickJobTab} data-job={name}>{name}</a>
+                    </li>
+                  );
+                }.bind(this))}
+              </ul>
+            </div>
+          </div>
+        </nav>
+        {this.state.log_data.jobs.map(function(name) {
+          var display = 'none';
+          if (name == this.state.active_log) {
+            display = 'block';
+          }
+          return (
+            <Log key={name} ref={"ref_" + name}
+                 data={this.state.log_data.data[name]}
+                 style={{display: display}}/>
+          );
+        }.bind(this))}
+      </div>
+    );
+  }
+});

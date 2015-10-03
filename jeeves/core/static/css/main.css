@@ -58,9 +58,9 @@
     text-overflow: ellipsis;
 }
 
-#log {
+.log-data {
     border: 0;
-    max-height: 1000px;
+    max-height: 500px;
     background: black;
     color: lightgrey;
     margin: 0;
@@ -73,4 +73,8 @@
 
 tbody.job-table>tr>td, tbody.job-table>th>td {
     border: 0;
+}
+
+#log-view .navbar-brand {
+    font-size: 14px;
 }

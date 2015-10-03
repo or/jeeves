@@ -5,32 +5,15 @@
 <div class="container-fluid" style="margin:0.2em">
   {% include "partials/build_detail_header.html" with build=object %}
 
-  <div class="panel panel-default">
-    <div class="panel-heading clearfix">
-      <h4 class="pull-left">Log</h4>
-      <div class="pull-right form-inline">
-        <div class="checkbox" style="margin-right: 1em;">
-          <label>
-            <input type="checkbox" id="enable-auto-scrolling" checked="checked"/>
-            Auto scroll
-          </label>
-        </div>
-        <a href="{% url 'build-log' project_slug=project.slug build_id=build.build_id %}"
-           role="button" class="btn btn-default" target="_blank">
-          <span class="glyphicon glyphicon-new-window"></span>
-        </a>
-      </div>
-    </div>
-    <div class="panel-body" style="padding:0">
-      <pre id="log" class="pre-scrollable"></pre>
-    </div>
+  <div id="log-view">
   </div>
 </div>
 {% endblock %}
 
 {% block js %}
-var current_log_offset = 0;
+var log_data = {{ log_data|safe }};
 var delay = 500;
+var log_view_component;
 
 function scroll_log(delay) {
   if (!$('#enable-auto-scrolling').prop('checked')) {
@@ -66,15 +49,23 @@ swampdragon.onChannelMessage(function (channels, message) {
 swampdragon.ready(function() {
   setInterval(function () {
     swampdragon.callRouter('get_latest_log', 'build-changes',
-      {id: {{ build.id }}, log_offset: current_log_offset},
+      {id: {{ build.id }}, log_offsets: log_data.offsets},
       function(context, data) {
         console.log(data);
+        log_data.jobs = data.jobs;
 
-        var log = $('#log');
-        log.append(data.log_data);
-        current_log_offset = data.log_offset;
+        for (var key in data.offsets) {
+          log_data.offsets[key] = data.offsets[key];
+          if (log_data.data[key] == null) {
+            log_data.data[key] = data.data[key];
+          } else {
+            log_data.data[key] += data.data[key];
+          }
+        }
 
-        scroll_log();
+        log_view_component.setLogData(log_data);
+
+        //scroll_log();
       });
   }, 1000);
 
@@ -87,6 +78,10 @@ swampdragon.ready(function() {
 $(document).ready(function() {
   update_progress_bars();
   update_age_displays();
-  scroll_log(0);
+  log_view_component = React.render(
+    React.createElement(LogView, {log_data: log_data}),
+    $('#log-view').get()[0]
+  );
+  //scroll_log(0);
 });
 {% endblock %}

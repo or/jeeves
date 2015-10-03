@@ -1,3 +1,5 @@
+import json
+
 from django.contrib import messages
 from django.http.response import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
@@ -8,6 +10,7 @@ from django.views.generic import DetailView, ListView
 
 from jeeves.core.models import Build, Project
 from jeeves.core.service import cancel_build, copy_and_schedule_new_build
+from jeeves.core.routers import get_log_change_message
 
 
 class ProjectListView(ListView):
@@ -68,6 +71,8 @@ class BuildDetailView(DetailView):
         context = super(BuildDetailView, self) \
             .get_context_data(*args, **kwargs)
         context['project'] = self.project
+        context['log_data'] = json.dumps(get_log_change_message(
+            context['object'], initial=True))
         return context
 
 
