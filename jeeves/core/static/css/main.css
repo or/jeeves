@@ -75,6 +75,10 @@ tbody.job-table>tr>td, tbody.job-table>th>td {
     border: 0;
 }
 
+.panel-default .panel-heading {
+    color: #777;
+}
+
 #log-view .navbar-brand {
     font-size: 14px;
 }
