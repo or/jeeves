@@ -29,45 +29,56 @@
   </head>
   <body role="document">
     <nav class="navbar navbar-inverse navbar-static-top" style="border:0; margin: 0;">
-      <a href="{% url 'project-list' %}" class="navbar-brand">
-        Jeeves
-      </a>
-      <ul class="nav navbar-nav" style="display:table-cell">
-        <li class="{% active_page request 'project-list' %}">
-          <a href="{% url 'project-list' %}" style="height:4em;">
-            Projects
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed"
+                  data-toggle="collapse" data-target="#navbar-collapse"
+                  aria-expanded="false">
+            <span class="fa fa-bars"></span>
+          </button>
+          <a href="{% url 'project-list' %}" class="navbar-brand">
+            Jeeves
           </a>
-        </li>
-        {% if project %}
-        <li class="{% active_page request 'build-list' %}">
-          <a href="{% url 'build-list' project_slug=project.slug %}" style="height:4em;">
-            {{ project.name }}
-          </a>
-        </li>
-        {% endif %}
-        {% if build %}
-        <li class="{% active_page request 'build-view' %}">
-          <a href="{% url 'build-view' project_slug=build.project.slug build_id=build.build_id %}" style="height:4em;">
-            #{{ build.build_id }}
-          </a>
-        </li>
-        {% endif %}
-      </ul>
-      {% if user.is_authenticated %}
-      <img class="nav navbar-right" src="{{ user.email|gravatar }}" style="height:4em;margin:0;"/>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-             aria-haspopup="true" aria-expanded="false" style="height:4em;">
-            {{ user.username }}
-            <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'logout' %}">logout</a></li>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="{% active_page request 'project-list' %}">
+              <a href="{% url 'project-list' %}" style="height:4em;">
+                Projects
+              </a>
+            </li>
+            {% if project %}
+            <li class="{% active_page request 'build-list' %}">
+              <a href="{% url 'build-list' project_slug=project.slug %}" style="height:4em;">
+                {{ project.name }}
+              </a>
+            </li>
+            {% endif %}
+            {% if build %}
+            <li class="{% active_page request 'build-view' %}">
+              <a href="{% url 'build-view' project_slug=build.project.slug build_id=build.build_id %}" style="height:4em;">
+                #{{ build.build_id }}
+              </a>
+            </li>
+            {% endif %}
           </ul>
-        </li>
-      </ul>
-      {% endif %}
+        {% if user.is_authenticated %}
+        <img class="nav navbar-right" src="{{ user.email|gravatar }}" style="height:4em;margin:0;"/>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+               aria-haspopup="true" aria-expanded="false" style="height:4em;">
+              {{ user.username }}
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'logout' %}">logout</a></li>
+            </ul>
+          </li>
+        </ul>
+        {% endif %}
+      </div>
     </nav>
     {% include "partials/messages.html" with messages=messages %}
 
