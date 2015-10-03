@@ -196,6 +196,8 @@ var LogView = React.createClass({
       log_data: log_data,
       active_log: active_log,
     });
+
+    setTimeout(this.autoScroll, 0);
   },
 
   clickJobTab(event) {
@@ -205,6 +207,23 @@ var LogView = React.createClass({
       log_data: this.props.log_data,
       active_log: active_log,
     });
+  },
+
+  autoScroll() {
+    var auto_scrolling = $(this.refs.auto_scrolling.getDOMNode());
+    if (!auto_scrolling.prop('checked') ||
+        this.state.active_log == null) {
+      return;
+    }
+
+    var i;
+    for (i = 0; i < this.props.log_data.jobs.length; ++i) {
+      var name = this.props.log_data.jobs[i];
+      var log = $(this.refs['ref_' + name].getDOMNode());
+      log.animate({
+        scrollTop: log.prop('scrollHeight')
+      }, 500);
+    }
   },
 
   render() {
@@ -236,6 +255,13 @@ var LogView = React.createClass({
                   );
                 }.bind(this))}
               </ul>
+
+              <div className="nav navbar-nav navbar-right" style={{paddingLeft: '40px'}}>
+                <label className="checkbox">
+                  <input id="test-stuff" type="checkbox" ref="auto_scrolling" defaultChecked={true}/>
+                  <span style={{fontWeight: 'normal', marginLeft: '0.5em'}}>Auto scroll</span>
+                </label>
+              </div>
             </div>
           </div>
         </nav>
