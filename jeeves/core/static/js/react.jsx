@@ -123,6 +123,22 @@ var AgeDisplay = React.createClass({
 });
 
 
+var LogLine = React.createClass({
+  render() {
+    return (
+      <tr>
+        <td className="log-line-number noselect">
+          {this.props.line_number}
+        </td>
+        <td className="log-line-data">
+          <span style={{display: 'block !important'}}>{this.props.data}</span>
+        </td>
+      </tr>
+    );
+  }
+});
+
+
 var Log = React.createClass({
   getInitialState() {
     return {
@@ -131,11 +147,26 @@ var Log = React.createClass({
   },
 
   render() {
+    var lines = [];
+    var raw_lines = this.props.data.split('\n');
+    var i;
+    for (i = 0; i < raw_lines.length; ++i) {
+      var raw_line = raw_lines[i];
+      lines.push({'number': i + 1, 'data': raw_line});
+    }
+
+    var style = this.props.style;
+    style.height = '400px';
+    style.background = '#000';
+    style.overflowY = 'auto';
+
     return (
-      <div style={this.props.style}>
-        <pre className="log-data">{
-          this.state.data
-        }</pre>
+      <div style={style}>
+        <table style={{width: '100%'}}>
+          {lines.map(function(line) {
+            return <LogLine line_number={line.number} data={line.data}/>
+          })}
+        </table>
       </div>
     );
   }
@@ -179,7 +210,7 @@ var LogView = React.createClass({
   render() {
     return (
       <div>
-        <nav className="navbar navbar-default" style={{marginBottom: '0'}}>
+        <nav className="navbar navbar-default" style={{marginBottom: '0', borderRadius: '0'}}>
           <div className="container-fluid">
             <div className="navbar-header">
               <button type="button" className="navbar-toggle collapsed"
@@ -191,9 +222,8 @@ var LogView = React.createClass({
             </div>
 
             <div className="collapse navbar-collapse" id="log-navbar-collapse"
-                 style={{marginTop: '10px', overflowY: 'hidden'}}>
-              <ul className="navbar-nav nav nav-tabs"
-                  style={{border: '0', marginLeft: '1em', marginBottom: '0'}}>
+                 style={{overflowY: 'hidden'}}>
+              <ul className="nav navbar-nav" style={{marginLeft: '1em'}}>
                 {this.state.log_data.jobs.map(function(name) {
                   if (this.state.active_log == name) {
                     var className="active";

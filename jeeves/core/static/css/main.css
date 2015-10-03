@@ -82,3 +82,42 @@ tbody.job-table>tr>td, tbody.job-table>th>td {
 #log-view .navbar-brand {
     font-size: 14px;
 }
+
+.log-line-number {
+    color: #888;
+    background-color: #000;
+    border-right: 1px solid #555;
+    width: 3em;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: right;
+    font-family: monospace;
+    vertical-align: top;
+}
+
+.log-line-data {
+    padding-left: 10px;
+    color: #ddd;
+    background-color: #000;
+    font-family: monospace;
+    vertical-align: top;
+}
+
+tr:hover .log-line-number {
+    color: #bbb;
+    background-color: #222;
+}
+
+tr:hover .log-line-data {
+    color: #fff;
+    background-color: #222;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
