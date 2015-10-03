@@ -39,7 +39,7 @@ function update_age_displays() {
   });
 }
 
-ProgressBar = React.createClass({
+var ProgressBar = React.createClass({
   getInitialState() {
     return {
       now: $.now() / 1000,
@@ -99,7 +99,7 @@ ProgressBar = React.createClass({
 });
 
 
-AgeDisplay = React.createClass({
+var AgeDisplay = React.createClass({
   getInitialState() {
     return {
       now: $.now() / 1000,
