@@ -12,6 +12,10 @@ urlpatterns = [
         login_required(views.BuildListView.as_view()),
         name="build-list"),
 
+    url('^(?P<project_slug>[^/]+)/graphs/$',
+        login_required(views.ProjectGraphsView.as_view()),
+        name="project-graphs"),
+
     url('^(?P<project_slug>[^/]+)/(?P<build_id>\d+)/$',
         login_required(views.BuildDetailView.as_view()),
         name="build-view"),

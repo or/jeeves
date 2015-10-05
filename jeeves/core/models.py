@@ -14,9 +14,13 @@ def get_total_number_of_seconds(delta):
     return 86400 * delta.days + delta.seconds + delta.microseconds / 1000000.0
 
 
-def get_elapsed_time(from_time, to_time):
+def get_elapsed_time_in_seconds(from_time, to_time):
     elapsed_time = to_time - from_time
-    float_num_secs = get_total_number_of_seconds(elapsed_time)
+    return get_total_number_of_seconds(elapsed_time)
+
+
+def get_elapsed_time(from_time, to_time):
+    float_num_secs = get_elapsed_time_in_seconds(from_time, to_time)
     if float_num_secs < 1:
         if float_num_secs < 0.1:
             return '0.1 secs'
@@ -173,6 +177,12 @@ class Build(models.Model):
             if number or length == 1:
                 return '{} {}{}'.format(
                     number, unit, 's' if number != 1 else '')
+
+    def get_duration_in_seconds(self):
+        if not self.start_time or not self.end_time:
+            return None
+
+        return get_elapsed_time_in_seconds(self.start_time, self.end_time)
 
     def get_duration(self):
         if not self.start_time or not self.end_time:
@@ -336,6 +346,12 @@ class Job(models.Model):
         self.log_file.close()
 
         return data, os.path.getsize(self.log_file.path)
+
+    def get_duration_in_seconds(self):
+        if not self.start_time or not self.end_time:
+            return None
+
+        return get_elapsed_time_in_seconds(self.start_time, self.end_time)
 
     def get_duration(self):
         if not self.start_time or not self.end_time:

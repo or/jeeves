@@ -22,7 +22,12 @@
     </div>
   </div>
 
-  <h3>Builds</h3>
+  <h3>Builds
+    <a href="{% url 'project-graphs' project_slug=project.slug %}"
+       role="button" class="btn btn-default">
+      <span class="fa fa-bar-chart"></span>
+    </a>
+  </h3>
 
   <div class="table-responsive">
     <table class="table table-striped">

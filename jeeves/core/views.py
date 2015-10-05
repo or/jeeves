@@ -22,6 +22,41 @@ class ProjectListView(ListView):
         return queryset.order_by('name')
 
 
+class ProjectGraphsView(DetailView):
+    model = Project
+    slug_url_kwarg = 'project_slug'
+    template_name = "project_graphs.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(ProjectGraphsView, self).get_context_data(*args, **kwargs)
+        data = []
+        for build in reversed(self.object.build_set.filter(status=Build.Status.FINISHED).order_by('-id')[:20]):
+            build_data = {
+                'name': '#{}'.format(build.build_id),
+                'creation_time': build.creation_time.isoformat(' '),
+                'duration': build.get_duration_in_seconds(),
+                'duration_display': build.get_duration(),
+                'status': build.status,
+                'result': build.status,
+                'jobs': [],
+            }
+
+            for job in build.get_jobs():
+                build_data['jobs'].append({
+                    'name': job.name,
+                    'duration': job.get_duration_in_seconds(),
+                    'duration_display': job.get_duration(),
+                    'status': job.status,
+                    'result': job.result,
+                })
+
+            data.append(build_data)
+
+        context['duration_graph_data'] = json.dumps(data)
+        print(data)
+        return context
+
+
 class BuildListView(ListView):
     model = Build
     template_name = "build_list.html"

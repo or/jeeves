@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Jeeves - {{ project.name }} - Builds{% endblock %}
+
+{% block javascript_include %}
+<script type="text/javascript" src="{% static 'js/highcharts.js' %}"/>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="margin:0.2em">
+  <h2 class="page-header" style="margin-top: 1em;">{{ project.name }}
+  </h2>
+
+  <div class="row" style="margin:0.2em">
+    <div class="panel panel-default">
+      <div id="duration-graph" class="panel-body" style="height: 500px">
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block js %}
+var data;
+$(document).ready(function() {
+    var raw_data = {{ duration_graph_data|safe }};
+    data = {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Build Duration'
+        },
+        xAxis: {
+            categories: [],
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total Duration'
+            },
+            stackLabels: {
+                enabled: false,
+            },
+            reversedStacks: false,
+        },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+        },
+        tooltip: {
+            headerFormat: '<b>Build {point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.duration}<br/>Total: {point.totalDuration}'
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: false,
+                },
+            }
+        },
+        series: [],
+    };
+
+    var i, j, jj;
+    var seen_jobs = {};
+    var all_jobs = [];
+    for (i = 0; i < raw_data.length; ++i) {
+      var row = raw_data[i];
+      data.xAxis.categories.push(row.name);
+      for (j = 0; j < row.jobs.length; ++j) {
+        var job = row.jobs[j];
+        if (seen_jobs[job.name] == null) {
+          seen_jobs[job.name] = true;
+          all_jobs.push(job.name);
+        }
+      }
+    }
+    var colors_success = {};
+    var colors_failure = {};
+    var colors_legend = {};
+    var legend_colors = [];
+    for (jj = 0; jj < all_jobs.length; ++jj) {
+      var job_name = all_jobs[jj];
+      var value = 230 - 150 + Math.round(jj * 150 / all_jobs.length);
+      colors_success[job_name] = '#00' + value.toString(16) + '00';
+      colors_failure[job_name] = '#' + value.toString(16) + '0000';
+      colors_legend[job_name] = '#' + value.toString(16) + value.toString(16) + value.toString(16);
+      legend_colors.push('#00' + value.toString(16) + '00');
+    }
+
+    for (jj = 0; jj < all_jobs.length; ++jj) {
+      var job_name = all_jobs[jj];
+      var series = {
+        name: job_name,
+        color: colors_legend[job_name],
+        data: [],
+        colors: [],
+      };
+      for (i = 0; i < raw_data.length; ++i) {
+        var row = raw_data[i];
+        var value = {};
+        for (j = 0; j < row.jobs.length; ++j) {
+          var job = row.jobs[j];
+          if (job.name == job_name) {
+            value.y = job.duration;
+            value.duration = job.duration_display;
+            value.totalDuration = row.duration_display;
+            if (job.result == 'success') {
+              value.color = colors_success[job_name];
+            } else {
+              value.color = colors_failure[job_name];
+            }
+            break;
+          }
+        }
+        series.data.push(value);
+      }
+      data.series.push(series);
+    }
+
+    $('#duration-graph').highcharts(data);
+});
+{% endblock %}
