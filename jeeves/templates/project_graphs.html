@@ -168,7 +168,7 @@ function make_builds_per_branch_graph() {
       .margin({bottom: 100});
 
     chart.xAxis.tickFormat(function(value) { return value; });
-    chart.yAxis.tickFormat(d3.format(',.1f'));
+    chart.yAxis.tickFormat(d3.format(',.f'));
 
     var svg = d3.select('#builds-per-branch-graph')
       .append('svg')
