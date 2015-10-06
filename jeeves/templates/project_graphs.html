@@ -26,85 +26,159 @@
     </div>
   </div>
 
+  <div class="row" style="margin:0.2em">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+      Builds per Branch
+      </div>
+      <div id="builds-per-branch-graph" class="panel-body" style="height: 500px">
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 
 {% block js %}
-var data;
-$(document).ready(function() {
-    var raw_data = {{ duration_graph_data|safe }};
-    var data = [];
-    var i, j, jj;
-    var seen_jobs = {};
-    var all_jobs = [];
+
+function make_duration_graph() {
+  var raw_data = {{ duration_graph_data|safe }};
+  var data = [];
+  var i, j, jj;
+  var seen_jobs = {};
+  var all_jobs = [];
+  for (i = 0; i < raw_data.length; ++i) {
+    var row = raw_data[i];
+    for (j = 0; j < row.jobs.length; ++j) {
+      var job = row.jobs[j];
+      if (seen_jobs[job.name] == null) {
+        seen_jobs[job.name] = true;
+        all_jobs.push(job.name);
+      }
+    }
+  }
+
+  for (jj = 0; jj < all_jobs.length; ++jj) {
+    var job_name = all_jobs[jj];
+    var series = {
+      key: job_name,
+      values: [],
+    };
+
     for (i = 0; i < raw_data.length; ++i) {
       var row = raw_data[i];
+      var value = {x: row.name, y: null, displayTotalDuration: row.duration_display};
       for (j = 0; j < row.jobs.length; ++j) {
         var job = row.jobs[j];
-        if (seen_jobs[job.name] == null) {
-          seen_jobs[job.name] = true;
-          all_jobs.push(job.name);
+        if (job.name == job_name) {
+          value.y = job.duration;
+          value.displayDuration = job.duration_display;
+          break;
         }
       }
+      series.values.push(value);
     }
+    data.push(series);
+  }
 
-     for (jj = 0; jj < all_jobs.length; ++jj) {
-      var job_name = all_jobs[jj];
-      var series = {
-        key: job_name,
-        values: [],
-      };
-
-      for (i = 0; i < raw_data.length; ++i) {
-        var row = raw_data[i];
-        var value = {x: row.name, y: null, displayTotalDuration: row.duration_display};
-        for (j = 0; j < row.jobs.length; ++j) {
-          var job = row.jobs[j];
-          if (job.name == job_name) {
-            value.y = job.duration;
-            value.displayDuration = job.duration_display;
-            break;
-          }
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart()
+      .duration(350)
+      .reduceXTicks(false)
+      .rotateLabels(0)
+      .showControls(true)
+      .groupSpacing(0.1)
+      .stacked(true)
+      .tooltipContent(function(obj) {
+        var tooltip = '<div style="padding: 5px">' +
+          '<div style="font-weight: bold">Build ' + obj.data.x + '</div>';
+        if (obj.data.displayDuration != null) {
+          tooltip += '<div>' + obj.data.key + ': ' + obj.data.displayDuration + '</div>';
         }
-        series.values.push(value);
-      }
-      data.push(series);
-    }
 
-    nv.addGraph(function() {
-      var chart = nv.models.multiBarChart()
-        .duration(350)
-        .reduceXTicks(false)
-        .rotateLabels(0)
-        .showControls(true)
-        .groupSpacing(0.1)
-        .stacked(true)
-        .tooltipContent(function(obj) {
-          var tooltip = '<div style="padding: 5px">' +
-            '<div style="font-weight: bold">Build ' + obj.data.x + '</div>';
-          if (obj.data.displayDuration != null) {
-            tooltip += '<div>' + obj.data.key + ': ' + obj.data.displayDuration + '</div>';
-          }
+        tooltip += '<div>total: ' + obj.data.displayTotalDuration + '</div>' +
+          '</div>';
 
-          tooltip += '<div>total: ' + obj.data.displayTotalDuration + '</div>' +
-            '</div>';
+        return tooltip;
+      })
 
-          return tooltip;
-        })
+    chart.xAxis.tickFormat(function(value) { return value; });
+    chart.yAxis.tickFormat(d3.format(',.1f'));
 
-      chart.xAxis.tickFormat(function(value) { return value; });
-      chart.yAxis.tickFormat(d3.format(',.1f'));
+    var svg = d3.select('#duration-graph')
+      .append('svg')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .datum(data)
+      .call(chart);
 
-      var svg = d3.select('#duration-graph')
-        .append('svg')
-        .attr('width', '100%')
-        .attr('height', '100%')
-        .datum(data)
-        .call(chart);
+    nv.utils.windowResize(chart.update);
 
-      nv.utils.windowResize(chart.update);
-
-      return chart;
+    return chart;
   });
+}
+
+function make_builds_per_branch_graph() {
+  var raw_data = {{ builds_per_branch_graph_data|safe }};
+  var data = [];
+  var i, j;
+  var categories = ['succeeded', 'failed'];
+
+  for (j = 0; j < categories.length; ++j) {
+    var category = categories[j];
+    var series = {
+      key: category,
+      values: [],
+    };
+
+    for (i = 0; i < raw_data.length; ++i) {
+      var row = raw_data[i];
+      var value = {
+        x: row.branch,
+        y: row['num_' + category],
+        num_total: row.num_succeeded + row.num_failed
+      };
+      series.values.push(value);
+    }
+    data.push(series);
+  }
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart()
+      .duration(350)
+      .reduceXTicks(false)
+      .rotateLabels(60)
+      .showControls(true)
+      .groupSpacing(0.1)
+      .stacked(true)
+      .tooltipContent(function(obj) {
+        var tooltip = '<div style="padding: 5px">' +
+          '<div style="font-weight: bold">' + obj.data.x + '</div>';
+        tooltip += '<div>' + obj.data.key + ': ' + obj.data.y + '</div>';
+        tooltip += '<div>total: ' + obj.data.num_total + '</div>' +
+          '</div>';
+
+        return tooltip;
+      })
+
+    chart.xAxis.tickFormat(function(value) { return value; });
+    chart.yAxis.tickFormat(d3.format(',.1f'));
+
+    var svg = d3.select('#builds-per-branch-graph')
+      .append('svg')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .datum(data)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+}
+
+$(document).ready(function() {
+    make_duration_graph();
+    make_builds_per_branch_graph();
 });
 {% endblock %}

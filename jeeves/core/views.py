@@ -1,6 +1,7 @@
 import json
 
 from django.contrib import messages
+from django.db.models import Case, Count, IntegerField, Q, Sum, When
 from django.http.response import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
@@ -53,7 +54,21 @@ class ProjectGraphsView(DetailView):
             data.append(build_data)
 
         context['duration_graph_data'] = json.dumps(data)
-        print(data)
+
+        data = self.object.build_set.values('branch') \
+            .annotate(
+                num_total=Count('id'),
+                num_succeeded=Sum(
+                    Case(When(result=Build.Result.SUCCESS, then=1), output_field=IntegerField())
+                ),
+                num_failed=Sum(
+                    Case(When(~Q(result=Build.Result.SUCCESS), then=1), output_field=IntegerField())
+                ),
+                ).order_by('-num_total')[:20]
+        data = list(data)
+
+        context['builds_per_branch_graph_data'] = json.dumps(data)
+
         return context
 
 
