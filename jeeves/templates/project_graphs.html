@@ -41,6 +41,10 @@
 
 {% block js %}
 
+function durationFormatter(d) {
+  return get_exact_time_difference_string(d);
+}
+
 function make_duration_graph() {
   var raw_data = {{ duration_graph_data|safe }};
   var data = [];
@@ -101,9 +105,10 @@ function make_duration_graph() {
 
         return tooltip;
       })
+      .margin({left: 100});
 
     chart.xAxis.tickFormat(function(value) { return value; });
-    chart.yAxis.tickFormat(d3.format(',.1f'));
+    chart.yAxis.tickFormat(durationFormatter);
 
     var svg = d3.select('#duration-graph')
       .append('svg')
@@ -160,6 +165,7 @@ function make_builds_per_branch_graph() {
 
         return tooltip;
       })
+      .margin({bottom: 100});
 
     chart.xAxis.tickFormat(function(value) { return value; });
     chart.yAxis.tickFormat(d3.format(',.1f'));
