@@ -2,8 +2,13 @@
 {% load staticfiles %}
 {% block title %}Jeeves - {{ project.name }} - Builds{% endblock %}
 
+{% block css_include %}
+<link rel="stylesheet" href="{% static 'css/nv.d3.css' %}">
+{% endblock %}
+
 {% block javascript_include %}
-<script type="text/javascript" src="{% static 'js/highcharts.js' %}"/>
+<script type="text/javascript" src="{% static 'js/d3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/nv.d3.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -13,6 +18,9 @@
 
   <div class="row" style="margin:0.2em">
     <div class="panel panel-default">
+      <div class="panel-heading">
+      Build Duration
+      </div>
       <div id="duration-graph" class="panel-body" style="height: 500px">
       </div>
     </div>
@@ -25,51 +33,12 @@
 var data;
 $(document).ready(function() {
     var raw_data = {{ duration_graph_data|safe }};
-    data = {
-        chart: {
-            type: 'column'
-        },
-        title: {
-            text: 'Build Duration'
-        },
-        xAxis: {
-            categories: [],
-        },
-        yAxis: {
-            min: 0,
-            title: {
-                text: 'Total Duration'
-            },
-            stackLabels: {
-                enabled: false,
-            },
-            reversedStacks: false,
-        },
-        legend: {
-            align: 'center',
-            verticalAlign: 'bottom',
-        },
-        tooltip: {
-            headerFormat: '<b>Build {point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.duration}<br/>Total: {point.totalDuration}'
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-                dataLabels: {
-                    enabled: false,
-                },
-            }
-        },
-        series: [],
-    };
-
+    var data = [];
     var i, j, jj;
     var seen_jobs = {};
     var all_jobs = [];
     for (i = 0; i < raw_data.length; ++i) {
       var row = raw_data[i];
-      data.xAxis.categories.push(row.name);
       for (j = 0; j < row.jobs.length; ++j) {
         var job = row.jobs[j];
         if (seen_jobs[job.name] == null) {
@@ -78,49 +47,64 @@ $(document).ready(function() {
         }
       }
     }
-    var colors_success = {};
-    var colors_failure = {};
-    var colors_legend = {};
-    var legend_colors = [];
-    for (jj = 0; jj < all_jobs.length; ++jj) {
-      var job_name = all_jobs[jj];
-      var value = 230 - 150 + Math.round(jj * 150 / all_jobs.length);
-      colors_success[job_name] = '#00' + value.toString(16) + '00';
-      colors_failure[job_name] = '#' + value.toString(16) + '0000';
-      colors_legend[job_name] = '#' + value.toString(16) + value.toString(16) + value.toString(16);
-      legend_colors.push('#00' + value.toString(16) + '00');
-    }
 
-    for (jj = 0; jj < all_jobs.length; ++jj) {
+     for (jj = 0; jj < all_jobs.length; ++jj) {
       var job_name = all_jobs[jj];
       var series = {
-        name: job_name,
-        color: colors_legend[job_name],
-        data: [],
-        colors: [],
+        key: job_name,
+        values: [],
       };
+
       for (i = 0; i < raw_data.length; ++i) {
         var row = raw_data[i];
-        var value = {};
+        var value = {x: row.name, y: null, displayTotalDuration: row.duration_display};
         for (j = 0; j < row.jobs.length; ++j) {
           var job = row.jobs[j];
           if (job.name == job_name) {
             value.y = job.duration;
-            value.duration = job.duration_display;
-            value.totalDuration = row.duration_display;
-            if (job.result == 'success') {
-              value.color = colors_success[job_name];
-            } else {
-              value.color = colors_failure[job_name];
-            }
+            value.displayDuration = job.duration_display;
             break;
           }
         }
-        series.data.push(value);
+        series.values.push(value);
       }
-      data.series.push(series);
+      data.push(series);
     }
 
-    $('#duration-graph').highcharts(data);
+    nv.addGraph(function() {
+      var chart = nv.models.multiBarChart()
+        .duration(350)
+        .reduceXTicks(false)
+        .rotateLabels(0)
+        .showControls(true)
+        .groupSpacing(0.1)
+        .stacked(true)
+        .tooltipContent(function(obj) {
+          var tooltip = '<div style="padding: 5px">' +
+            '<div style="font-weight: bold">Build ' + obj.data.x + '</div>';
+          if (obj.data.displayDuration != null) {
+            tooltip += '<div>' + obj.data.key + ': ' + obj.data.displayDuration + '</div>';
+          }
+
+          tooltip += '<div>total: ' + obj.data.displayTotalDuration + '</div>' +
+            '</div>';
+
+          return tooltip;
+        })
+
+      chart.xAxis.tickFormat(function(value) { return value; });
+      chart.yAxis.tickFormat(d3.format(',.1f'));
+
+      var svg = d3.select('#duration-graph')
+        .append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .datum(data)
+        .call(chart);
+
+      nv.utils.windowResize(chart.update);
+
+      return chart;
+  });
 });
 {% endblock %}
