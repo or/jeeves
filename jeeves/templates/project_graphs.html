@@ -128,12 +128,14 @@ function make_builds_per_branch_graph() {
   var data = [];
   var i, j;
   var categories = ['succeeded', 'failed'];
+  var colors = ['#3b3', '#c22'];
 
   for (j = 0; j < categories.length; ++j) {
     var category = categories[j];
     var series = {
       key: category,
       values: [],
+      color: colors[j],
     };
 
     for (i = 0; i < raw_data.length; ++i) {
