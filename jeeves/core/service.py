@@ -139,6 +139,30 @@ def start_build(build_pk):
         finish_build(build, Build.Result.ERROR, ''.join(exception_data))
 
 
+class LineReader(object):
+
+    def __init__(self, fd):
+        self._fd = fd
+        self._buf = b''
+
+    def fileno(self):
+        return self._fd
+
+    def readlines(self):
+        data = os.read(self._fd, 4096)
+        if not data:
+            # EOF
+            return None
+
+        self._buf += data
+        if b'\n' not in data:
+            return []
+
+        tmp = self._buf.split(b'\n')
+        lines, self._buf = tmp[:-1], tmp[-1]
+        return lines
+
+
 def run_build(build):
     build.status = Build.Status.RUNNING
     build.start_time = timezone.now()
@@ -233,41 +257,44 @@ def run_build(build):
                 env=env)
 
             stderr = ''
-            running = True
-            buffers = {p.stdout: '', p.stderr: ''}
-            fds = [p.stdout, p.stderr]
-            while running:
-                for fd in select.select(fds, [], [])[0]:
-                    output = fd.readline()
-                    if output == b"":
-                        running = False
-                        continue
-
-                    buffers[fd] += output.decode('utf-8')
-                    lines = buffers[fd].split('\n')
-                    for line in lines[:-1]:
-                        line += '\n'
-
-                        if fd == p.stderr:
-                            out.write(('__stderr: ' + line).encode('utf-8'))
-                            stderr += line
-                        else:
-                            out.write(line.encode('utf-8'))
-
-                    buffers[fd] = lines[-1]
-
-                out.flush()
-
-            for fd in fds:
-                if not buffers[fd]:
+            proc_stdout = LineReader(p.stdout.fileno())
+            proc_stderr = LineReader(p.stderr.fileno())
+            readable = [proc_stdout, proc_stderr]
+            while readable:
+                ready = select.select(readable, [], [], 1.0)[0]
+                if not ready:
                     continue
 
-                line = buffers[fd] + '\n'
-                if fd == p.stderr:
-                    out.write(('__stderr: ' + line).encode('utf-8'))
-                    stderr += line
+                for stream in ready:
+                    lines = stream.readlines()
+                    if lines is None:
+                        # got EOF on this stream
+                        readable.remove(stream)
+                        continue
+
+                    for line in lines:
+                        line += b'\n'
+
+                        if stream == proc_stderr:
+                            out.write(b'__stderr: ' + line)
+                            stderr += line.decode('utf-8')
+                        else:
+                            out.write(line)
+
+                        out.flush()
+
+            for stream in [proc_stdout, proc_stderr]:
+                if not stream._buf:
+                    continue
+
+                line = stream._buf + b'\n'
+                if stream == proc_stderr:
+                    out.write(b'__stderr: ' + line)
+                    stderr += line.decode('utf-8')
                 else:
-                    out.write(line.encode('utf-8'))
+                    out.write(line)
+
+                out.flush()
 
             out.close()
             p.wait()
