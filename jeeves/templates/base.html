@@ -28,7 +28,6 @@
     {% swampdragon_settings %}
     <script type="text/javascript" src="{% static 'swampdragon/js/dist/swampdragon.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/react-with-addons-0.13.3.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/JSXTransformer-0.13.3.js' %}"></script>
   </head>
   <body role="document">
     <nav class="navbar navbar-inverse navbar-static-top" style="border:0; margin: 0;">
@@ -92,7 +91,7 @@
     {% block javascript_include %}
     {% endblock %}
     <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
-    <script type="text/jsx" src="{% static 'js/react.jsx' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jeeves.js' %}"></script>
     <script type="text/javascript">
     {% block js %}
     {% endblock %}
