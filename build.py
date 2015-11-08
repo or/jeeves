@@ -14,7 +14,7 @@ sys.stderr.write("some error!\n")
 sys.stderr.flush()
 
 for i in range(15):
-    print("line {}".format(i))
+    print("    line {}".format(i))
     sys.stdout.flush()
     time.sleep(0.1)
 
