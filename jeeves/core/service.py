@@ -149,7 +149,7 @@ class LineReader(object):
         return self._fd
 
     def readlines(self):
-        data = os.read(self._fd, 4096)
+        data = os.read(self._fd, 409600)
         if not data:
             # EOF
             return None
