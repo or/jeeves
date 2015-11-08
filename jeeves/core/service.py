@@ -34,8 +34,8 @@ def cancel_build(build):
 def schedule_new_build(project, repository=None, branch=None,
                        metadata=None, reason=None, commit=None):
     build = Build.objects.create(project=project, repository=repository,
-                                 branch=branch, reason=reason, commit=commit)
-    build.metadata = metadata
+                                 branch=branch, reason=reason, commit=commit,
+                                 metadata=metadata)
     schedule_build(build)
 
     return build
@@ -46,11 +46,13 @@ def copy_and_schedule_new_build(build, user=None):
     if user:
         reason += ' by {}'.format(user.username)
 
-    new_build = schedule_new_build(
-        build.project, repository=build.repository, branch=build.branch,
+    new_build = Build.objects.create(
+        project=build.project, repository=build.repository, branch=build.branch,
         metadata=build.metadata, reason=reason, commit=build.commit)
 
     BuildSource.objects.create(build=new_build, source=build, user=user)
+
+    schedule_build(new_build)
 
     return new_build
 
