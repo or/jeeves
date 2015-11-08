@@ -180,7 +180,6 @@ var Log = React.createClass({
     }
 
     var style = this.props.style;
-    style.height = '400px';
     style.background = '#000';
     style.overflowY = 'auto';
 
@@ -242,14 +241,10 @@ var LogView = React.createClass({
       return;
     }
 
-    var i;
-    for (i = 0; i < this.props.log_data.jobs.length; ++i) {
-      var name = this.props.log_data.jobs[i];
-      var log = $(this.refs['ref_' + name].getDOMNode());
-      log.animate({
-        scrollTop: log.prop('scrollHeight')
-      }, 500);
-    }
+    var page = $(document.body);
+    page.animate({
+      scrollTop: page.prop('scrollHeight')
+    }, 500);
   },
 
   render: function render() {
