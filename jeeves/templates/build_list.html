@@ -70,5 +70,11 @@ swampdragon.ready(function() {
 $(document).ready(function() {
   update_progress_bars();
   update_age_displays();
+
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+  });
 });
 {% endblock %}

@@ -218,12 +218,30 @@ class Build(models.Model):
 
         return previous_duration
 
+    def get_url(self):
+        return reverse(
+            'build-view',
+            kwargs=dict(project_slug=self.project.slug,
+                        build_id=self.build_id))
+
     def get_external_url(self):
         return settings.BASE_URL + \
             reverse(
                 'build-view',
                 kwargs=dict(project_slug=self.project.slug,
                             build_id=self.build_id))
+
+    def get_cancel_link(self):
+        return reverse(
+            'build-cancel',
+            kwargs=dict(project_slug=self.project.slug,
+                        build_id=self.build_id))
+
+    def get_schedule_copy_link(self):
+        return reverse(
+            'build-schedule-copy',
+            kwargs=dict(project_slug=self.project.slug,
+                        build_id=self.build_id))
 
     def get_repository_link(self):
         if not self.repository:

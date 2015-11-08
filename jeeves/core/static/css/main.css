@@ -6,6 +6,10 @@
     margin: 0;
 }
 
+.clickable-row {
+    cursor: pointer;
+}
+
 .table tr.build-row td {
     vertical-align: middle;
 }

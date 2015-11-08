@@ -1,4 +1,4 @@
-<tr id="build-{{ build.id }}" class="build-row h4">
+<tr id="build-{{ build.id }}" class="build-row h4 clickable-row" data-href="{{ build.get_url }}">
   <td class="text-center" style="width:5%;">
     {% include "partials/build_link.html" with build=build %}
   </td>
@@ -36,18 +36,13 @@
   </td>
   <td style="width:2em; height: 2em; padding: 0;">
     {% if build.metadata.sender.avatar_url %}
-    <a href="{{ build.metadata.sender.html_url }}" target="_blank">
-      <img src="{{ build.metadata.sender.avatar_url }}"
-           style="width:2em; height: 2em;"
-           title="github/{{ build.metadata.sender.login }}"/>
-    </a>
+    <img src="{{ build.metadata.sender.avatar_url }}"
+         style="width:2em; height: 2em;"
+         title="github/{{ build.metadata.sender.login }}"/>
     {% endif %}
   </td>
   <td style="width:35%">
-    <a href="{{ build.get_branch_link }}" target="_blank">
-      <span class="fa fa-github" style="font-size:1.1em"></span>
-      {{ build.branch }}
-    </a>
+    {{ build.branch }}
   </td>
   <td>
     {% if build.source %}

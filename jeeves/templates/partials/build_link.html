@@ -1,3 +1,3 @@
-<a href="{% url 'build-view' project_slug=build.project.slug build_id=build.build_id %}">
+<a href="{{ build.get_url }}">
   #{{ build.build_id }}
 </a>

@@ -86,3 +86,21 @@ function do_action(url) {
     }
   });
 }
+
+function disabledEventPropagation(event) {
+  if (event.stopPropagation) {
+    event.stopPropagation();
+  } else if (window.event) {
+    event.cancelBubble = true;
+  }
+}
+
+function on_action_button_clicked(event, url) {
+  if (!event) {
+    event = window.event;
+  }
+
+  disabledEventPropagation(event);
+
+  do_action(url);
+}
