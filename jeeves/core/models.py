@@ -260,7 +260,7 @@ class Build(models.Model):
         if not self.repository or not self.branch:
             return None
 
-        return 'https://github.com/{}/tree/{}' \
+        return 'https://github.com/{}/commits/{}' \
             .format(self.repository, self.branch)
 
     def get_commit(self):
