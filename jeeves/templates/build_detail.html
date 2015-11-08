@@ -54,9 +54,6 @@ swampdragon.ready(function() {
   swampdragon.subscribe('build-changes', 'build-change-{{ build.id }}', {id: {{ build.id }}});
 });
 
-{% endblock %}
-
-{% block jsx %}
 $(document).ready(function() {
   update_progress_bars();
   update_age_displays();
