@@ -7,5 +7,7 @@ celery==3.1.18
 SwampDragon==0.4.2.2
 jsonfield==1.0.3
 Jinja2==2.8
+psycopg2==2.6.1
+kombu==3.0.26
 
 ipython==4.0.0
