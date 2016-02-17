@@ -46,7 +46,7 @@ function durationFormatter(d) {
 }
 
 function make_duration_graph() {
-  var raw_data = {{ duration_graph_data|safe }};
+  var raw_data = JSON.parse('{{ duration_graph_data|escapejs }}');
   var data = [];
   var i, j, jj;
   var seen_jobs = {};
@@ -124,7 +124,7 @@ function make_duration_graph() {
 }
 
 function make_builds_per_branch_graph() {
-  var raw_data = {{ builds_per_branch_graph_data|safe }};
+  var raw_data = JSON.parse('{{ builds_per_branch_graph_data|escapejs }}');
   var data = [];
   var i, j;
   var categories = ['succeeded', 'failed'];

@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block js %}
-var log_data = {{ log_data|safe }};
+var log_data = JSON.parse('{{ log_data|escapejs }}');
 var log_view_component;
 
 swampdragon.onChannelMessage(function (channels, message) {
