@@ -16,9 +16,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BuildSource',
             fields=[
-                ('build', models.OneToOneField(related_name='source', to='core.Build', serialize=False, primary_key=True)),
-                ('source', models.ForeignKey(related_name='copies', to='core.Build')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('build', models.OneToOneField(related_name='source', to='core.Build', serialize=False, primary_key=True, on_delete=models.CASCADE)),
+                ('source', models.ForeignKey(related_name='copies', to='core.Build', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
     ]

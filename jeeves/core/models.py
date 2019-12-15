@@ -44,7 +44,7 @@ def get_elapsed_time(from_time, to_time):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     github_account = models.CharField(max_length=128, null=True, blank=True)
     flowdock_account = models.CharField(max_length=128, null=True, blank=True)
@@ -73,7 +73,7 @@ class Project(models.Model):
 
 
 class JobDescription(models.Model):
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.SlugField(
         name="name",
         max_length=128, help_text="the name of the job inside the build")
@@ -119,7 +119,7 @@ class Build(models.Model):
         (Result.ERROR, Result.ERROR),
     ]
 
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     build_id = models.IntegerField(null=True, blank=True)
     blocking_key = models.CharField(max_length=1024, null=True, blank=True)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES,
@@ -133,7 +133,7 @@ class Build(models.Model):
     commit = models.CharField(max_length=40, null=True, blank=True)
     metadata = jsonfield.JSONField()
     reason = models.CharField(max_length=128, null=True, blank=False)
-    blocked_by = models.ForeignKey('Build', null=True, blank=True)
+    blocked_by = models.ForeignKey('Build', null=True, blank=True, on_delete=models.CASCADE)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
                               null=True, blank=True)
     result_details = models.TextField(null=True, blank=True)
@@ -309,9 +309,9 @@ class Build(models.Model):
 
 
 class BuildSource(models.Model):
-    build = models.OneToOneField(Build, primary_key=True, related_name="source")
-    source = models.ForeignKey(Build, related_name="copies")
-    user = models.ForeignKey(User)
+    build = models.OneToOneField(Build, primary_key=True, related_name="source", on_delete=models.CASCADE)
+    source = models.ForeignKey(Build, related_name="copies", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Job(models.Model):
@@ -335,7 +335,7 @@ class Job(models.Model):
         (Result.ERROR, Result.ERROR),
     ]
 
-    build = models.ForeignKey(Build)
+    build = models.ForeignKey(Build, on_delete=models.CASCADE)
     name = models.SlugField(name="name", max_length=128)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES,
                               default=Status.RUNNING, db_index=True)

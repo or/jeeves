@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='build',
             name='project',
-            field=models.ForeignKey(to='core.Project'),
+            field=models.ForeignKey(to='core.Project', on_delete=models.CASCADE),
         ),
         migrations.AlterUniqueTogether(
             name='build',

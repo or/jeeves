@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('log_file', models.FileField(upload_to='', blank=True, storage=django.core.files.storage.FileSystemStorage(location='logs'), null=True)),
                 ('result', models.CharField(choices=[('success', 'success'), ('failure', 'failure')], max_length=16, blank=True, null=True)),
-                ('build', models.ForeignKey(to='core.Build')),
-                ('job', models.ForeignKey(to='core.JobDescription')),
+                ('build', models.ForeignKey(to='core.Build', on_delete=models.CASCADE)),
+                ('job', models.ForeignKey(to='core.JobDescription', on_delete=models.CASCADE)),
             ],
         ),
     ]

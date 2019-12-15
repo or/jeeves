@@ -19,14 +19,16 @@ class GithubRepository(models.Model):
 class GithubWebhookMatch(models.Model):
     repository = models.ForeignKey(
         GithubRepository,
-        help_text="the repository on GitHub")
+        help_text="the repository on GitHub",
+        on_delete=models.CASCADE)
 
     branch_match = models.CharField(
         max_length=512,
         help_text="a wildcard pattern of the branches to match")
 
     project = models.ForeignKey(
-        Project, help_text="the Jeeves project")
+        Project, help_text="the Jeeves project",
+        on_delete=models.CASCADE)
 
     exclude = models.BooleanField()
 

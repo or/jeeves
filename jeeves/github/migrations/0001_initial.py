@@ -24,8 +24,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
                 ('branch_match', models.CharField(help_text='a wildcard pattern of the branches to match', max_length=512)),
                 ('exclude', models.BooleanField()),
-                ('project', models.ForeignKey(to='core.Project', help_text='the Jeeves project')),
-                ('repository', models.ForeignKey(to='github.GithubRepository', help_text='the repository on GitHub')),
+                ('project', models.ForeignKey(to='core.Project', help_text='the Jeeves project', on_delete=models.CASCADE)),
+                ('repository', models.ForeignKey(to='github.GithubRepository', help_text='the repository on GitHub', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(

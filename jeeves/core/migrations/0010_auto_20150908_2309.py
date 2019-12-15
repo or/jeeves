@@ -35,6 +35,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='jobdescription',
             name='project',
-            field=models.ForeignKey(to='core.Project'),
+            field=models.ForeignKey(to='core.Project', on_delete=models.CASCADE),
         ),
     ]

@@ -140,7 +140,7 @@ class BuildCopyScheduleView(BuildDetailView):
                 new_build.build_id, build.build_id))
 
         template = get_template("partials/messages.html")
-        data = {'messages_html': template.render(RequestContext(request))}
+        data = {'messages_html': template.render(RequestContext(request).flatten())}
 
         return JsonResponse(data)
 
@@ -161,7 +161,7 @@ class BuildCancelView(BuildDetailView):
             'Cancelled build #{}.'.format(build.build_id))
 
         template = get_template("partials/messages.html")
-        data = {'messages_html': template.render(RequestContext(request))}
+        data = {'messages_html': template.render(RequestContext(request).flatten())}
 
         return JsonResponse(data)
 

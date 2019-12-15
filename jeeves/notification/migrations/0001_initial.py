@@ -15,8 +15,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='NotificationMetadata',
             fields=[
-                ('build', models.OneToOneField(primary_key=True, to='core.Build', serialize=False)),
                 ('data', jsonfield.fields.JSONField()),
+                ('build', models.OneToOneField(primary_key=True, to='core.Build', serialize=False, on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(max_length=10, choices=[('flowdock', 'flowdock')])),
                 ('token', models.CharField(max_length=128)),
                 ('channel', models.CharField(max_length=256)),
-                ('project', models.ForeignKey(to='core.Project')),
+                ('project', models.ForeignKey(to='core.Project', on_delete=models.CASCADE)),
             ],
         ),
     ]

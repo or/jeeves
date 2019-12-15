@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='build',
             name='blocked_by',
-            field=models.ForeignKey(null=True, blank=True, to='core.Build'),
+            field=models.ForeignKey(null=True, blank=True, to='core.Build', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='build',
