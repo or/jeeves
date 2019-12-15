@@ -1,6 +1,5 @@
-import jsonfield
-
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 from jeeves.core.models import Build, Project
 
@@ -20,5 +19,5 @@ class NotificationTarget(models.Model):
 
 
 class NotificationMetadata(models.Model):
-    data = jsonfield.JSONField()
     build = models.OneToOneField(Build, primary_key=True, on_delete=models.CASCADE)
+    data = JSONField(default=dict)

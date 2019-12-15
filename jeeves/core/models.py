@@ -1,13 +1,12 @@
 import os
 
-import jsonfield
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils import timezone
+from django.contrib.postgres.fields import JSONField
 
 
 def get_total_number_of_seconds(delta):
@@ -131,7 +130,7 @@ class Build(models.Model):
     repository = models.CharField(max_length=512, null=True, blank=True)
     branch = models.CharField(max_length=1024, null=True, blank=True)
     commit = models.CharField(max_length=40, null=True, blank=True)
-    metadata = jsonfield.JSONField()
+    metadata = JSONField(default=dict)
     reason = models.CharField(max_length=128, null=True, blank=False)
     blocked_by = models.ForeignKey('Build', null=True, blank=True, on_delete=models.CASCADE)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
@@ -264,7 +263,7 @@ class Build(models.Model):
             .format(self.repository, self.branch)
 
     def get_commit(self):
-        if not self.metadata:
+        if not self.metadata or self.metadata == 'null':
             return None
 
         return self.metadata.get('head_commit')

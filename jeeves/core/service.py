@@ -35,7 +35,7 @@ def schedule_new_build(project, repository=None, branch=None,
                        metadata=None, reason=None, commit=None):
     build = Build.objects.create(project=project, repository=repository,
                                  branch=branch, reason=reason, commit=commit,
-                                 metadata=metadata)
+                                 metadata=metadata or {})
     schedule_build(build)
 
     return build
