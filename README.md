@@ -38,10 +38,6 @@ Run the main Jeeves server:
 ```
 $ ./manage.py runserver
 ```
-In another terminal run the swampdragon server for the websocket:
-```
-$ ./manage.py runsd
-```
 In yet another terminal run a celery worker:
 ```
 $ celery worker -A jeeves
