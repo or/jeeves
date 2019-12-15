@@ -177,7 +177,7 @@ def run_build(build):
     for jd in build.project.jobdescription_set.all():
         known_jobs.add(jd.name.lower())
         dependencies[jd.name.lower()] = \
-            [x.lower() for x in jd.dependencies.split(', ')] \
+            [x.strip().lower() for x in jd.dependencies.split(',') if x.strip().lower()] \
             if jd.dependencies else []
 
     result_map = {}

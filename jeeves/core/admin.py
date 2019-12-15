@@ -80,6 +80,7 @@ class JobDescriptionForm(forms.ModelForm):
         dependencies = [x.strip().lower() for x in value.split(',')]
         dependencies = list(sorted(set(x for x in dependencies if x)))
         dependencies = ','.join(dependencies)
+
         self.cleaned_data['dependencies'] = dependencies
         return dependencies
 

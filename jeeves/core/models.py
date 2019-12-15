@@ -77,7 +77,7 @@ class JobDescription(models.Model):
         name="name",
         max_length=128, help_text="the name of the job inside the build")
     dependencies = models.CharField(
-        max_length=1024, null=True, blank=True,
+        max_length=1024, null=False, blank=True, default='',
         help_text="a list of job names this job depends on")
     script = models.TextField(help_text="the script to run for the job")
     report_result = models.BooleanField(
