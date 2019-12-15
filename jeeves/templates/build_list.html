@@ -43,7 +43,7 @@
         {% include "partials/build_list_row.html" with build=build %}
       {% empty %}
         <tr><td>No builds yet.</td></tr>
-      {% endfor %}
+        {% endfor %}
       </tbody>
     </table>
   </div>
@@ -51,21 +51,29 @@
 {% endblock %}
 
 {% block js %}
-swampdragon.onChannelMessage(function (channels, message) {
-  console.log(message.data);
-  var element = $('#build-' + message.data.id);
+var ws = new WebSocket('ws://' + window.location.host + '/ws/builds/{{ project.id }}/');
+
+ws.onmessage = function(e) {
+  var data = JSON.parse(e.data);
+
+  console.log(data);
+  var element = $('#build-' + data.id);
   if (element.length == 0) {
-    $('#build-table').prepend(message.data.row_html);
+    $('#build-table').prepend(data.row_html);
   } else {
-    element.replaceWith(message.data.row_html);
+    element.replaceWith(data.row_html);
   }
   update_progress_bars();
   update_age_displays();
-});
+};
 
-swampdragon.ready(function() {
-  swampdragon.subscribe('build-changes', '{{ project.id }}-build-change', null);
-});
+ws.onopen = function(e) {
+  console.log('web socket connected');
+}
+
+ws.onclose = function(e) {
+  console.error('web socket closed unexpectedly');
+};
 
 $(document).ready(function() {
   update_progress_bars();

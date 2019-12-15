@@ -11,12 +11,15 @@
 {% endblock %}
 
 {% block js %}
+var interval = null;
 var log_data = JSON.parse('{{ log_data|escapejs }}');
 var log_view_component;
 
-swampdragon.onChannelMessage(function (channels, message) {
-  var element = $('#build-' + message.data.id);
-  var data = message.data;
+var ws = new WebSocket('ws://' + window.location.host + '/ws/builds/{{ project.id }}/{{ build.id }}/');
+
+ws.onmessage = function(e) {
+  var data = JSON.parse(e.data);
+  var element = $('#build-' + data.id);
   console.log(data);
   if (data.details_html != null) {
     $('#build-' + {{ build.id }}).replaceWith(data.details_html);
@@ -26,33 +29,37 @@ swampdragon.onChannelMessage(function (channels, message) {
     $('#jobs-list').replaceWith(data.jobs_html);
   }
 
+  if (data.jobs != null) {
+    console.log(data);
+    log_data.jobs = data.jobs;
+
+    for (var key in data.offsets) {
+      log_data.offsets[key] = data.offsets[key];
+      if (log_data.data[key] == null) {
+        log_data.data[key] = data.data[key];
+      } else {
+        log_data.data[key] += data.data[key];
+      }
+    }
+
+    log_view_component.setLogData(log_data);
+  }
+
   update_progress_bars();
   update_age_displays();
-});
+};
 
-swampdragon.ready(function() {
-  setInterval(function () {
-    swampdragon.callRouter('get_latest_log', 'build-changes',
-      {id: {{ build.id }}, offsets: log_data.offsets},
-      function(context, data) {
-        console.log(data);
-        log_data.jobs = data.jobs;
-
-        for (var key in data.offsets) {
-          log_data.offsets[key] = data.offsets[key];
-          if (log_data.data[key] == null) {
-            log_data.data[key] = data.data[key];
-          } else {
-            log_data.data[key] += data.data[key];
-          }
-        }
-
-        log_view_component.setLogData(log_data);
-      });
+ws.onopen = function(e) {
+  console.log('web socket connected');
+  interval = setInterval(function () {
+    ws.send(JSON.stringify({type: 'get_latest_log', offsets: log_data.offsets}));
   }, 1000);
+};
 
-  swampdragon.subscribe('build-changes', 'build-change-{{ build.id }}', {id: {{ build.id }}});
-});
+ws.onclose = function(e) {
+  console.error('web socket closed unexpectedly');
+  clearInterval(interval);
+};
 
 $(document).ready(function() {
   update_progress_bars();

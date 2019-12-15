@@ -11,7 +11,7 @@ from django.views.generic import DetailView, ListView
 
 from jeeves.core.models import Build, Project
 from jeeves.core.service import cancel_build, copy_and_schedule_new_build
-from jeeves.core.routers import get_log_change_message
+from jeeves.core.consumers import get_log_change_message
 
 
 class ProjectListView(ListView):

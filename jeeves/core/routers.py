@@ -1,80 +1,49 @@
-from swampdragon import route_handler
-from swampdragon.pubsub_providers.data_publisher import publish_data
+from django.urls import re_path
+
+import channels.layers
+from asgiref.sync import async_to_sync
+
+from . import consumers
 
 from django.template.loader import get_template
 
 from jeeves.core.models import Build, Project
 
+websocket_urlpatterns = [
+    re_path(r'ws/builds/(?P<project_id>\w+)/$', consumers.BuildListChangesConsumer),
+    re_path(r'ws/builds/(?P<project_id>\w+)/(?P<build_id>\w+)/$', consumers.BuildChangesConsumer),
+]
 
-class BuildChangesRouter(route_handler.BaseRouter):
-    route_name = 'build-changes'
-    valid_verbs = ['subscribe', 'get_latest_log']
+channel_layer = channels.layers.get_channel_layer()
 
-    def get_subscription_channels(self, **kwargs):
-        channels = ['all-build-change']
-        for project in Project.objects.all():
-            channels.append('{}-build-change'.format(project.id))
-
-        build_pk = kwargs.get('id')
-        if build_pk:
-            channels.append('build-change-{}'.format(build_pk))
-
-        return channels
-
-    def get_latest_log(self, **kwargs):
-        build_pk = kwargs.get('id')
-        if not build_pk:
-            return
-
-        build = Build.objects.get(pk=build_pk)
-        message = get_log_change_message(build, offsets=kwargs.get('offsets'))
-
-        if message:
-            self.send(message)
-
-route_handler.register(BuildChangesRouter)
+def publish_data(channel_name, message_type, data):
+    async_to_sync(channel_layer.group_send)(channel_name, {
+        'type': message_type,
+        'data': data,
+    })
 
 
 def send_build_change(build):
     template = get_template("partials/build_list_row.html")
     row_html = template.render({'build': build})
-    publish_data('all-build-change', {'id': build.id, 'row_html': row_html})
-    publish_data('{}-build-change'.format(build.project.id),
+    publish_data(consumers.all_builds_channel(),
+                 'build_list_update',
+                 {'id': build.id, 'row_html': row_html})
+    publish_data(consumers.project_builds_channel(build.project.id),
+                 'build_list_update',
                  {'id': build.id, 'row_html': row_html})
 
     template = get_template("partials/build_detail_header.html")
     details_html = template.render({'build': build})
-    publish_data('build-change-{}'.format(build.id), {'id': build.id, 'details_html': details_html})
+    publish_data(consumers.build_channel(build.id),
+                 'build_update',
+                 {'id': build.id, 'details_html': details_html})
 
 
 def send_job_change(job):
     build = job.build
     template = get_template("partials/job_list.html")
     jobs_html = template.render({'build': build})
-    publish_data('build-change-{}'.format(build.id), {'id': build.id, 'jobs_html': jobs_html})
-
-
-def get_log_change_message(build, offsets=None, initial=False):
-    if offsets is None:
-        offsets = {}
-
-    message = {'jobs': [], 'data': {}, 'offsets': {}}
-    got_changes = False
-    for job in build.get_jobs():
-        offset = offsets.get(job.name, 0)
-        log_data, new_offset = job.get_log(offset=offset)
-        message['jobs'].append(job.name)
-
-        # if there is no new data and we already had an offset for it,
-        # then the client knows about it and we don't have to send an update
-        if not log_data and job.name in offsets:
-            continue
-
-        message['data'][job.name] = log_data
-        message['offsets'][job.name] = new_offset
-        got_changes = True
-
-    if got_changes or initial:
-        return message
-
-    return None
+    publish_data(consumers.build_channel(build.id),
+                 'job_update',
+                 {'id': build.id, 'jobs_html': jobs_html})
