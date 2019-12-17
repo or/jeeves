@@ -7,5 +7,6 @@ git+https://github.com/PyGithub/PyGithub@master
 celery==4.3.0
 Jinja2==2.10.3
 psycopg2==2.8.4
+redis==3.3.11
 
 ipython==7.10.1
