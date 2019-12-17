@@ -15,7 +15,11 @@ var interval = null;
 var log_data = JSON.parse('{{ log_data|escapejs }}');
 var log_view_component;
 
-var ws = new WebSocket('ws://' + window.location.host + '/ws/builds/{{ project.id }}/{{ build.id }}/');
+var wsStart = 'ws://';
+if (window.location.protocol == 'https:') {
+wsStart = 'wss://'
+}
+var ws = new WebSocket(wsStart + window.location.hostname + ':9998/ws/builds/{{ project.id }}/{{ build.id }}/');
 
 ws.onmessage = function(e) {
   var data = JSON.parse(e.data);

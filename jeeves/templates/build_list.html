@@ -51,7 +51,11 @@
 {% endblock %}
 
 {% block js %}
-var ws = new WebSocket('ws://' + window.location.host + '/ws/builds/{{ project.id }}/');
+var wsStart = 'ws://';
+if (window.location.protocol == 'https:') {
+  wsStart = 'wss://'
+}
+var ws = new WebSocket(wsStart + window.location.hostname + ':9998/ws/builds/{{ project.id }}/');
 
 ws.onmessage = function(e) {
   var data = JSON.parse(e.data);
