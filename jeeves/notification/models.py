@@ -1,7 +1,7 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 
 from jeeves.core.models import Build, Project
+from jeeves.util import JsonFieldTransitionHelper
 
 
 class NotificationTarget(models.Model):
@@ -20,4 +20,4 @@ class NotificationTarget(models.Model):
 
 class NotificationMetadata(models.Model):
     build = models.OneToOneField(Build, primary_key=True, on_delete=models.CASCADE)
-    data = JSONField(default=dict)
+    data = JsonFieldTransitionHelper(default=dict)

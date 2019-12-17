@@ -6,7 +6,8 @@ from django.core.files.storage import FileSystemStorage
 from django.urls import reverse
 from django.db import models
 from django.utils import timezone
-from django.contrib.postgres.fields import JSONField
+
+from jeeves.util import JsonFieldTransitionHelper
 
 
 def get_total_number_of_seconds(delta):
@@ -130,7 +131,7 @@ class Build(models.Model):
     repository = models.CharField(max_length=512, null=True, blank=True)
     branch = models.CharField(max_length=1024, null=True, blank=True)
     commit = models.CharField(max_length=40, null=True, blank=True)
-    metadata = JSONField(default=dict)
+    metadata = JsonFieldTransitionHelper(default=dict)
     reason = models.CharField(max_length=128, null=True, blank=False)
     blocked_by = models.ForeignKey('Build', null=True, blank=True, on_delete=models.CASCADE)
     result = models.CharField(max_length=16, choices=RESULT_CHOICES,
