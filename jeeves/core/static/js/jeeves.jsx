@@ -43,7 +43,7 @@ var ProgressBar = React.createClass({
   getInitialState() {
     return {
       now: $.now() / 1000,
-    }
+    };
   },
 
   render() {
@@ -67,7 +67,7 @@ var ProgressBar = React.createClass({
       if (elapsed_time > this.props.estimated_time) {
         overtime = true;
         var over = elapsed_time - this.props.estimated_time;
-        var estimation_steps = Math.max(this.props.estimated_time / 10, 10)
+        var estimation_steps = Math.max(this.props.estimated_time / 10, 10);
         var projected_eta = (Math.floor(over / estimation_steps) + 1) * estimation_steps + this.props.estimated_time;
 
         normal_percentage = 100.0 * this.props.estimated_time / projected_eta;
@@ -103,7 +103,7 @@ var AgeDisplay = React.createClass({
   getInitialState() {
     return {
       now: $.now() / 1000,
-    }
+    };
   },
 
   render() {
@@ -174,7 +174,7 @@ var Log = React.createClass({
       <div style={style}>
         <table style={{width: '100%'}}>
           {lines.map(function(line) {
-            return <LogLine line_number={line.number} data={line.data} stderr={line.stderr}/>
+            return <LogLine line_number={line.number} data={line.data} stderr={line.stderr}/>;
           })}
         </table>
       </div>
@@ -193,7 +193,7 @@ var LogView = React.createClass({
     return {
       log_data: this.props.log_data,
       active_log: active_log,
-    }
+    };
   },
 
   setLogData(log_data) {
