@@ -15,55 +15,64 @@ var interval = null;
 var log_data = JSON.parse('{{ log_data|escapejs }}');
 var log_view_component;
 
-var wsStart = 'ws://';
-if (window.location.protocol == 'https:') {
-wsStart = 'wss://'
-}
-var ws = new WebSocket(wsStart + window.location.hostname + ':9998/ws/builds/{{ project.id }}/{{ build.id }}/');
-
-ws.onmessage = function(e) {
-  var data = JSON.parse(e.data);
-  var element = $('#build-' + data.id);
-  console.log(data);
-  if (data.details_html != null) {
-    $('#build-' + {{ build.id }}).replaceWith(data.details_html);
+function connectWebSocket(reloadAfterConnect) {
+  var wsStart = 'ws://';
+  if (window.location.protocol == 'https:') {
+  wsStart = 'wss://'
   }
+  var ws = new WebSocket(wsStart + window.location.hostname + ':9998/ws/builds/{{ project.id }}/{{ build.id }}/');
 
-  if (data.jobs_html != null) {
-    $('#jobs-list').replaceWith(data.jobs_html);
-  }
-
-  if (data.jobs != null) {
+  ws.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+    var element = $('#build-' + data.id);
     console.log(data);
-    log_data.jobs = data.jobs;
-
-    for (var key in data.offsets) {
-      log_data.offsets[key] = data.offsets[key];
-      if (log_data.data[key] == null) {
-        log_data.data[key] = data.data[key];
-      } else {
-        log_data.data[key] += data.data[key];
-      }
+    if (data.details_html != null) {
+      $('#build-' + {{ build.id }}).replaceWith(data.details_html);
     }
 
-    log_view_component.setLogData(log_data);
-  }
+    if (data.jobs_html != null) {
+      $('#jobs-list').replaceWith(data.jobs_html);
+    }
 
-  update_progress_bars();
-  update_age_displays();
-};
+    if (data.jobs != null) {
+      console.log(data);
+      log_data.jobs = data.jobs;
 
-ws.onopen = function(e) {
-  console.log('web socket connected');
-  interval = setInterval(function () {
-    ws.send(JSON.stringify({type: 'get_latest_log', offsets: log_data.offsets}));
-  }, 1000);
-};
+      for (var key in data.offsets) {
+        log_data.offsets[key] = data.offsets[key];
+        if (log_data.data[key] == null) {
+          log_data.data[key] = data.data[key];
+        } else {
+          log_data.data[key] += data.data[key];
+        }
+      }
 
-ws.onclose = function(e) {
-  console.error('web socket closed unexpectedly');
-  clearInterval(interval);
-};
+      log_view_component.setLogData(log_data);
+    }
+
+    update_progress_bars();
+    update_age_displays();
+  };
+
+  ws.onopen = function(e) {
+    console.log('web socket connected');
+    if (reloadAfterConnect) {
+      location.reload();
+    }
+    interval = setInterval(function () {
+      ws.send(JSON.stringify({type: 'get_latest_log', offsets: log_data.offsets}));
+    }, 1000);
+  };
+
+  ws.onclose = function(e) {
+    console.error('web socket closed unexpectedly');
+    clearInterval(interval);
+
+    setTimeout(function() { connectWebSocket(true); }, 10000);
+  };
+}
+
+connectWebSocket(false);
 
 $(document).ready(function() {
   update_progress_bars();

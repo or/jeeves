@@ -51,33 +51,41 @@
 {% endblock %}
 
 {% block js %}
-var wsStart = 'ws://';
-if (window.location.protocol == 'https:') {
-  wsStart = 'wss://'
-}
-var ws = new WebSocket(wsStart + window.location.hostname + ':9998/ws/builds/{{ project.id }}/');
-
-ws.onmessage = function(e) {
-  var data = JSON.parse(e.data);
-
-  console.log(data);
-  var element = $('#build-' + data.id);
-  if (element.length == 0) {
-    $('#build-table').prepend(data.row_html);
-  } else {
-    element.replaceWith(data.row_html);
+function connectWebSocket(reloadAfterConnect) {
+  var wsStart = 'ws://';
+  if (window.location.protocol == 'https:') {
+    wsStart = 'wss://'
   }
-  update_progress_bars();
-  update_age_displays();
+  var ws = new WebSocket(wsStart + window.location.hostname + ':9998/ws/builds/{{ project.id }}/');
+
+  ws.onmessage = function(e) {
+    var data = JSON.parse(e.data);
+
+    console.log(data);
+    var element = $('#build-' + data.id);
+    if (element.length == 0) {
+      $('#build-table').prepend(data.row_html);
+    } else {
+      element.replaceWith(data.row_html);
+    }
+    update_progress_bars();
+    update_age_displays();
+  };
+
+  ws.onopen = function(e) {
+    console.log('web socket connected');
+    if (reloadAfterConnect) {
+      location.reload();
+    }
+  }
+
+  ws.onclose = function(e) {
+    console.error('web socket closed unexpectedly');
+    setTimeout(function() { connectWebSocket(true); }, 10000);
+  };
 };
 
-ws.onopen = function(e) {
-  console.log('web socket connected');
-}
-
-ws.onclose = function(e) {
-  console.error('web socket closed unexpectedly');
-};
+connectWebSocket(false);
 
 $(document).ready(function() {
   update_progress_bars();
