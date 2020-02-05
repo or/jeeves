@@ -46,6 +46,10 @@ def handle_push_hook_request(payload):
     if branch.startswith('refs/heads/'):
         branch = branch[len('refs/heads/'):]
 
+    # delete events don't trigger anything
+    if payload['deleted']:
+        return
+
     commit = payload['head_commit']['id']
     projects, repository = match_to_projects(payload)
     reason = "GitHub push"
