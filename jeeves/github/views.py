@@ -24,22 +24,21 @@ class GithubWebhookView(View):
         if request.META.get('HTTP_X_GITHUB_EVENT') == "ping":
             return HttpResponse('Hi!')
 
-        if False:
-            if request.META.get('HTTP_X_GITHUB_EVENT') != "push":
-                response = HttpResponse()
-                response.status_code = 403
-                return response
+        if request.META.get('HTTP_X_GITHUB_EVENT') != "push":
+            response = HttpResponse()
+            response.status_code = 403
+            return response
 
-            signature = request.META.get('HTTP_X_HUB_SIGNATURE').split('=')[1]
-            secret = settings.GITHUB_HOOK_SECRET
-            if isinstance(secret, str):
-                secret = secret.encode('utf-8')
+        signature = request.META.get('HTTP_X_HUB_SIGNATURE').split('=')[1]
+        secret = settings.GITHUB_HOOK_SECRET
+        if isinstance(secret, str):
+            secret = secret.encode('utf-8')
 
-            mac = hmac.new(secret, msg=request.body, digestmod=sha1)
-            if not hmac.compare_digest(mac.hexdigest(), signature):
-                response = HttpResponse()
-                response.status_code = 403
-                return response
+        mac = hmac.new(secret, msg=request.body, digestmod=sha1)
+        if not hmac.compare_digest(mac.hexdigest(), signature):
+            response = HttpResponse()
+            response.status_code = 403
+            return response
 
         handle_push_hook_request(payload)
 
