@@ -104,7 +104,7 @@ tbody.job-table>tr>td, tbody.job-table>th>td {
     background-color: #000;
     font-family: monospace;
     vertical-align: top;
-    white-space: pre-line;
+    white-space: pre-wrap;
 }
 
 .log-line-number.stderr {
