@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta
 
 from django.contrib import messages
 from django.db.models import Case, Count, IntegerField, Q, Sum, When
@@ -6,6 +7,7 @@ from django.http.response import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template import RequestContext
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView
 
@@ -64,7 +66,7 @@ class ProjectGraphsView(DetailView):
                 num_failed=Sum(
                     Case(When(~Q(result=Build.Result.SUCCESS), then=1), output_field=IntegerField())
                 ),
-                ).order_by('-num_total')[:20]
+            ).order_by('-num_total')
         data = list(data)
 
         context['builds_per_branch_graph_data'] = json.dumps(data)
@@ -81,10 +83,11 @@ class BuildListView(ListView):
             get_object_or_404(Project, slug=self.kwargs['project_slug'])
         queryset = super(BuildListView, self).get_queryset()
         return queryset.filter(project=self.project) \
+            .filter(creation_time__gte=timezone.now() - timedelta(days=30)) \
             .select_related(
                 'project', 'source',
                 'source__user', 'source__source', 'source__source__project'
-            ).order_by('-build_id')[:20]
+            ).order_by('-build_id')
 
     def get_context_data(self, *args, **kwargs):
         context = super(BuildListView, self).get_context_data(*args, **kwargs)
