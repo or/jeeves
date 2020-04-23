@@ -87,6 +87,9 @@ def notify(event, build=None, job=None):
         build = job.build
 
     for notification_target in build.project.notificationtarget_set.all():
+        if not notification_target.enabled:
+            continue
+
         if notification_target.type == NotificationTarget.Type.FLOWDOCK:
             notify_flowdock(
                 notification_target.token,

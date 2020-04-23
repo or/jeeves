@@ -16,6 +16,7 @@ class NotificationTarget(models.Model):
     type = models.CharField(max_length=10, choices=TYPE_CHOICES)
     token = models.CharField(max_length=128)
     channel = models.CharField(max_length=256)
+    enabled = models.BooleanField(default=True)
 
 
 class NotificationMetadata(models.Model):
