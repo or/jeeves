@@ -3,6 +3,7 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
+from django.forms.models import model_to_dict
 from django.urls import reverse
 from django.db import models
 from django.utils import timezone
@@ -64,6 +65,7 @@ class Project(models.Model):
         "builds with the same key will block each other; a constant key "
         "will result in a blocking build queue",
         null=True, blank=True)
+    metadata = JsonFieldTransitionHelper(default=dict)
 
     def __str__(self):
         return self.name
@@ -289,6 +291,7 @@ class Build(models.Model):
 
     def get_script_context(self):
         context = dict(
+            project=model_to_dict(self.project),
             branch=self.branch,
             commit=self.commit,
             metadata=self.metadata,
