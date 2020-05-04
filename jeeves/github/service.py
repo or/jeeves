@@ -80,8 +80,10 @@ def report_status_for_job(job):
 
     if job.result == Job.Result.SUCCESS:
         status = 'success'
+        description = ''
     else:
         status = 'error'
+        description = 'See Jeeves build for details'
 
     github = Github('', token)
     repo = github.get_repo(metadata['repository']['full_name'])
@@ -89,6 +91,6 @@ def report_status_for_job(job):
     commit.create_status(
         status,
         target_url=job.build.get_external_url(),
-        description=job.result_details or '',
+        description=description,
         context='Jeeves {}.{}'.format(job.build.project.slug, job.name)
     )
