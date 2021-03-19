@@ -4,7 +4,7 @@ channels-redis==2.4.1
 requests==2.22.0
 git+https://github.com/PyGithub/PyGithub@master
 celery==4.3.0
-Jinja2==2.10.3
+Jinja2==2.11.3
 psycopg2==2.8.4
 redis==3.3.11
 
